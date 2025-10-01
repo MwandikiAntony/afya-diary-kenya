@@ -1,41 +1,77 @@
+// src/App.js
 import React from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+import Home from "./pages/Home";
 import Login from "./pages/Login";
+import Verify from "./pages/Verify";
 import Register from "./pages/Register";
+
 import Dashboard from "./pages/Dashboard";
+import CHVDashboard from "./pages/CHVDashboard";
+import ChemistDashboard from "./pages/ChemistDashboard";
+
 import Patients from "./pages/Patients";
 import Appointments from "./pages/Appointments";
 import Records from "./pages/Records";
 import Reminders from "./pages/Reminders";
 import Profile from "./pages/Profile";
+
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
-import Home from "./pages/Home"; // ✅ New landing page
 
-function App() {
+export default function App() {
   return (
-    <BrowserRouter>
+    <Router>
       <Routes>
-        {/* Home (Landing page) */}
-        <Route path="/" element={<PublicRoute><Home /></PublicRoute>} />
-
         {/* Public */}
+        <Route path="/" element={<PublicRoute><Home /></PublicRoute>} />
         <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
         <Route path="/register" element={<PublicRoute><Register /></PublicRoute>} />
+        <Route path="/verify" element={<PublicRoute><Verify /></PublicRoute>} />
 
-        {/* Protected */}
-        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/patients" element={<ProtectedRoute><Patients /></ProtectedRoute>} />
-        <Route path="/appointments" element={<ProtectedRoute><Appointments /></ProtectedRoute>} />
-        <Route path="/records" element={<ProtectedRoute><Records /></ProtectedRoute>} />
-        <Route path="/reminders" element={<ProtectedRoute><Reminders /></ProtectedRoute>} />
-        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+        {/* Patient */}
+        <Route
+          path="/dashboard"
+          element={<ProtectedRoute role="patient"><Dashboard /></ProtectedRoute>}
+        />
+        <Route
+          path="/patients"
+          element={<ProtectedRoute role="patient"><Patients /></ProtectedRoute>}
+        />
+        <Route
+          path="/appointments"
+          element={<ProtectedRoute role="patient"><Appointments /></ProtectedRoute>}
+        />
+        <Route
+          path="/records"
+          element={<ProtectedRoute role="patient"><Records /></ProtectedRoute>}
+        />
+        <Route
+          path="/reminders"
+          element={<ProtectedRoute role="patient"><Reminders /></ProtectedRoute>}
+        />
+        <Route
+          path="/profile"
+          element={<ProtectedRoute role="patient"><Profile /></ProtectedRoute>}
+        />
 
-        {/* Default fallback */}
-        <Route path="*" element={<Navigate to="/" />} />
+        {/* CHV */}
+        <Route
+          path="/chv-dashboard"
+          element={<ProtectedRoute role="chv"><CHVDashboard /></ProtectedRoute>}
+        />
+
+        {/* Chemist */}
+        <Route
+          path="/chemist-dashboard"
+          element={<ProtectedRoute role="chemist"><ChemistDashboard /></ProtectedRoute>}
+        />
+
+        {/* fallback */}
+<Route path="*" element={<PublicRoute><Home /></PublicRoute>} />
+
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 }
-
-export default App;

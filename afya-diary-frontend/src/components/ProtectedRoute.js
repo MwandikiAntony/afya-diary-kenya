@@ -1,21 +1,37 @@
-import React, { useEffect, useState } from "react";
+// src/components/PublicRoute.js
+import React from "react";
 import { Navigate } from "react-router-dom";
-import Loader from "./Loader";
 
-export default function ProtectedRoute({ children }) {
-  const [loading, setLoading] = useState(true);
-  const [ok, setOk] = useState(false);
+function getRedirectPath(user) {
+  if (!user) return "/login";
+  if (user.role === "patient") return "/dashboard";
+  if (user.role === "chv") return "/chv-dashboard";
+  if (user.role === "chemist") return "/chemist-dashboard";
+  return "/dashboard";
+}
 
-  useEffect(() => {
-    // quick token presence check (you could replace with API check)
-    const token = localStorage.getItem("token");
-    setOk(!!token);
-    // small delay to avoid flicker
-    const t = setTimeout(() => setLoading(false), 250);
-    return () => clearTimeout(t);
-  }, []);
+/**
+ * PublicRoute
+ * - If user is logged in, redirect to their dashboard
+ * - Otherwise show the public page (children)
+ */
+export default function PublicRoute({ children }) {
+  let token = null;
+  let user = null;
 
-  if (loading) return <Loader />;
-  if (!ok) return <Navigate to="/login" replace />;
+  try {
+    token = localStorage.getItem("token");
+    const u = localStorage.getItem("user");
+    user = u ? JSON.parse(u) : null;
+  } catch (err) {
+    console.error("Invalid localStorage user:", err);
+    token = null;
+    user = null;
+  }
+
+  if (token && user) {
+    return <Navigate to={getRedirectPath(user)} replace />;
+  }
+
   return children;
 }

@@ -1,76 +1,64 @@
+// src/pages/Login.js
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
+import toast from "react-hot-toast";
 
-function Login() {
-  const [formData, setFormData] = useState({ phone: "", pin: "" });
-  const [error, setError] = useState("");
+export default function Login() {
+  const [phone, setPhone] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
+  const sendOtp = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      const { data } = await api.post("/users/login", formData);
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-      navigate("/dashboard");
+      await api.post("/auth/request-otp", { phone });
+      toast.success("✅ OTP sent to your phone");
+      navigate("/verify", { state: { phone } });
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
+      console.error("sendOtp error", err);
+      toast.error(err.response?.data?.message || "Failed to send OTP");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#E6F2F5]">
-      <div className="bg-white p-8 rounded-2xl shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold text-[#00695C] mb-4 text-center">AfyaDiary Kenya</h2>
-        <h3 className="text-xl text-center text-gray-700 mb-6">Login</h3>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-green-50 px-6">
+      <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md">
+        <h1 className="text-3xl font-bold text-blue-800 mb-2 text-center">Afyadiary Kenya</h1>
+        <p className="text-gray-600 text-center mb-6">
+          Enter your phone number to receive a one-time password (OTP).
+        </p>
 
-        {error && <p className="text-red-600 mb-3 text-center">{error}</p>}
+        <form onSubmit={sendOtp} className="space-y-4">
+          <input
+            type="tel"
+            placeholder="+2547XXXXXXXX"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            required
+            className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          />
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <input
-            type="text"
-            name="phone"
-            placeholder="Phone Number"
-            value={formData.phone}
-            onChange={handleChange}
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#00695C]"
-            required
-          />
-          <input
-            type="password"
-            name="pin"
-            placeholder="4-digit PIN"
-            value={formData.pin}
-            onChange={handleChange}
-            maxLength="4"
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#00695C]"
-            required
-          />
           <button
             type="submit"
-            className="w-full bg-[#00695C] text-white py-3 rounded-lg hover:bg-[#004D40] transition"
+            disabled={loading}
+            className={`w-full py-3 rounded-lg text-white font-semibold shadow-md transition ${
+              loading ? "bg-gray-400 cursor-not-allowed" : "bg-blue-700 hover:bg-blue-800"
+            }`}
           >
-            Login
+            {loading ? "Sending OTP..." : "Send OTP"}
           </button>
         </form>
 
-        <p className="mt-4 text-center text-gray-600">
-          Don’t have an account?{" "}
-          <span
-            className="text-[#00695C] font-semibold cursor-pointer"
-            onClick={() => navigate("/register")}
-          >
-            Register
-          </span>
+        <p className="text-sm text-gray-500 mt-6 text-center">
+          By logging in, you agree to our{" "}
+          <a href="/terms" className="text-blue-600 hover:underline">Terms</a> &{" "}
+          <a href="/privacy" className="text-blue-600 hover:underline">Privacy Policy</a>.
         </p>
       </div>
     </div>
   );
 }
-
-export default Login;

@@ -1,74 +1,65 @@
+// src/pages/VerifyOTP.js
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
-import { toast } from "react-toastify";
+import api from "../utils/api";
+import toast from "react-hot-toast";
 
-const VerifyOtp = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  // phone is passed from Login.js
-  const phone = location.state?.phone || "";
-  const [code, setCode] = useState("");
+export default function VerifyOTP() {
+  const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { state } = useLocation();
+  const phone = state?.phone;
 
-  const handleVerify = async (e) => {
+  const verifyOtp = async (e) => {
     e.preventDefault();
-    if (!phone || !code) {
-      toast.error("Phone and OTP code are required");
-      return;
-    }
-
+    setLoading(true);
     try {
-      setLoading(true);
-      const res = await axios.post("http://localhost:5000/api/auth/verify-otp", {
-        phone,
-        code,
-      });
+      const { data } = await api.post("/auth/verify-otp", { phone, otp });
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      toast.success("Login successful");
 
-      // Save token & user in localStorage
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("user", JSON.stringify(res.data.user));
-
-      toast.success("Login successful!");
-      navigate("/dashboard"); // ✅ redirect to dashboard
+      // redirect by role
+      if (data.user.role === "patient") navigate("/dashboard");
+      else if (data.user.role === "chv") navigate("/chv-dashboard");
+      else if (data.user.role === "chemist") navigate("/chemist-dashboard");
+      else navigate("/dashboard");
     } catch (err) {
       console.error(err);
-      toast.error(err.response?.data?.message || "Invalid OTP");
+      toast.error("Invalid OTP");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <form
-        onSubmit={handleVerify}
-        className="bg-white shadow-lg rounded-2xl p-8 w-96"
-      >
-        <h2 className="text-2xl font-bold mb-6 text-center">Verify OTP</h2>
-        <p className="mb-4 text-gray-600 text-center">
-          Enter the 6-digit OTP sent to <b>{phone}</b>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-blue-50 px-6">
+      <div className="bg-white shadow-lg rounded-xl p-8 w-full max-w-md">
+        <h1 className="text-2xl font-bold text-green-700 mb-6 text-center">
+          Verify OTP
+        </h1>
+        <p className="text-sm text-gray-600 text-center mb-4">
+          Enter the code sent to <strong>{phone}</strong>
         </p>
-
-        <input
-          type="text"
-          placeholder="Enter OTP"
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          className="w-full p-3 border rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition"
-        >
-          {loading ? "Verifying..." : "Verify OTP"}
-        </button>
-      </form>
+        <form onSubmit={verifyOtp} className="space-y-4">
+          <input
+            type="text"
+            placeholder="Enter OTP"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value)}
+            required
+            className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500"
+          />
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+          >
+            {loading ? "Verifying..." : "Verify OTP"}
+          </button>
+        </form>
+      </div>
     </div>
   );
-};
-
-export default VerifyOtp;
+}

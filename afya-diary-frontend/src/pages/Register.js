@@ -1,85 +1,80 @@
+// src/pages/Register.js
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
+import toast from "react-hot-toast";
 
-function Register() {
-  const [formData, setFormData] = useState({ name: "", phone: "", pin: "" });
-  const [error, setError] = useState("");
+export default function Register() {
+  const [phone, setPhone] = useState("");
+  const [name, setName] = useState("");
+  const [role, setRole] = useState("patient");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
-      const { data } = await api.post("/users/register", formData);
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-      navigate("/dashboard");
+      await api.post("/auth/request-otp", { phone, name, role });
+
+      toast.success("✅ Registered! OTP sent to your phone");
+      navigate("/verify", { state: { phone } });
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed");
+      console.error("register error", err);
+      toast.error(err.response?.data?.message || "Failed to register");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#E6F2F5]">
-      <div className="bg-white p-8 rounded-2xl shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold text-[#00695C] mb-4 text-center">AfyaDiary Kenya</h2>
-        <h3 className="text-xl text-center text-gray-700 mb-6">Create Account</h3>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-white to-blue-50 px-6">
+      <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md">
+        <h1 className="text-3xl font-bold text-green-700 mb-2 text-center">Register</h1>
+        <p className="text-gray-600 text-center mb-6">
+          Fill in your details to create an account.
+        </p>
 
-        {error && <p className="text-red-600 mb-3 text-center">{error}</p>}
-
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleRegister} className="space-y-4">
           <input
             type="text"
-            name="name"
             placeholder="Full Name"
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#00695C]"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             required
+            className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
           />
+
           <input
-            type="text"
-            name="phone"
-            placeholder="Phone Number"
-            value={formData.phone}
-            onChange={handleChange}
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#00695C]"
+            type="tel"
+            placeholder="+2547XXXXXXXX"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
             required
+            className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
           />
-          <input
-            type="password"
-            name="pin"
-            placeholder="4-digit PIN"
-            value={formData.pin}
-            onChange={handleChange}
-            maxLength="4"
-            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-[#00695C]"
-            required
-          />
+
+          <select
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+          >
+            <option value="patient">Patient</option>
+            <option value="chv">CHV</option>
+            <option value="chemist">Chemist</option>
+          </select>
+
           <button
             type="submit"
-            className="w-full bg-[#00695C] text-white py-3 rounded-lg hover:bg-[#004D40] transition"
+            disabled={loading}
+            className={`w-full py-3 rounded-lg text-white font-semibold shadow-md transition ${
+              loading ? "bg-gray-400 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"
+            }`}
           >
-            Register
+            {loading ? "Registering..." : "Register"}
           </button>
         </form>
-
-        <p className="mt-4 text-center text-gray-600">
-          Already have an account?{" "}
-          <span
-            className="text-[#00695C] font-semibold cursor-pointer"
-            onClick={() => navigate("/login")}
-          >
-            Login
-          </span>
-        </p>
       </div>
     </div>
   );
 }
-
-export default Register;
