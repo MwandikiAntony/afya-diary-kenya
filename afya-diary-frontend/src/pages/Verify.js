@@ -1,4 +1,3 @@
-// src/pages/Verify.js
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import api from "../utils/api";
@@ -8,13 +7,14 @@ export default function Verify() {
   const location = useLocation();
   const navigate = useNavigate();
   const phone = location.state?.phone || "";
+  const role = location.state?.role || "patient"; // ✅ Get role from navigation state
+
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // if verify opened directly and we don't have phone, send user back
     if (!phone) {
-      // small UX: allow returning to login
+      // Optional: navigate("/login");
     }
   }, [phone]);
 
@@ -22,15 +22,18 @@ export default function Verify() {
     e.preventDefault();
     setLoading(true);
     try {
-      // backend expects { phone, code } (your backend verifies 'code')
-      const { data } = await api.post("/auth/verify-otp", { phone, code: otp });
+      const { data } = await api.post("/auth/verify-otp", {
+        phone,
+        code: otp,
+        role, // ✅ Include role in the request
+      });
 
       if (data?.token && data?.user) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
         toast.success("✅ Login successful");
 
-        // redirect by role
+        // ✅ Redirect based on user role
         if (data.user.role === "patient") navigate("/dashboard");
         else if (data.user.role === "chv") navigate("/chv-dashboard");
         else if (data.user.role === "chemist") navigate("/chemist-dashboard");
@@ -52,10 +55,13 @@ export default function Verify() {
         <h1 className="text-2xl font-bold text-blue-800 mb-6 text-center">Verify OTP</h1>
 
         {phone ? (
-          <p className="text-gray-600 text-center mb-4">Enter the OTP sent to <strong>{phone}</strong></p>
+          <p className="text-gray-600 text-center mb-4">
+            Enter the OTP sent to <strong>{phone}</strong>
+          </p>
         ) : (
           <p className="text-gray-600 text-center mb-4">
-            No phone number found. <Link to="/login" className="text-blue-600 underline">Go back to login</Link>.
+            No phone number found.{" "}
+            <Link to="/login" className="text-blue-600 underline">Go back to login</Link>.
           </p>
         )}
 

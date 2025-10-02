@@ -18,7 +18,9 @@ export default function Register() {
       await api.post("/auth/request-otp", { phone, name, role });
 
       toast.success("✅ Registered! OTP sent to your phone");
-      navigate("/verify", { state: { phone } });
+
+      // ✅ Pass role to verify step too (if needed later)
+      navigate("/verify", { state: { phone, role } }); // 🔧 FIXED LINE
     } catch (err) {
       console.error("register error", err);
       toast.error(err.response?.data?.message || "Failed to register");

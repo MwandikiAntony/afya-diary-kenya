@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 
 export default function Login() {
   const [phone, setPhone] = useState("");
+  const [role, setRole] = useState("patient"); // ✅ Added role state
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -13,9 +14,13 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     try {
-      await api.post("/auth/request-otp", { phone });
+      // ✅ Send phone + role
+      await api.post("/auth/request-otp", { phone, role });
+
       toast.success("✅ OTP sent to your phone");
-      navigate("/verify", { state: { phone } });
+
+      // ✅ Also pass role to verify page if needed
+      navigate("/verify", { state: { phone, role } });
     } catch (err) {
       console.error("sendOtp error", err);
       toast.error(err.response?.data?.message || "Failed to send OTP");
@@ -41,6 +46,17 @@ export default function Login() {
             required
             className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
+
+          {/* ✅ Role Selector */}
+          <select
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          >
+            <option value="patient">Patient</option>
+            <option value="chv">CHV</option>
+            <option value="chemist">Chemist</option>
+          </select>
 
           <button
             type="submit"

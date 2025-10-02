@@ -1,19 +1,43 @@
-import React, { useState } from "react";
-import Layout from "../components/Layout";
+// src/pages/Records.js
+import React, { useEffect, useState } from "react";
+import PatientLayout from "../components/PatientLayout";
 import api from "../utils/api";
 import toast from "react-hot-toast";
 
 export default function Records() {
-  const [form, setForm] = useState({ patientId: "", type: "diagnosis", title: "", description: "" });
+  const [records, setRecords] = useState([]);
+  const [form, setForm] = useState({ type: "diagnosis", title: "", description: "" });
   const [loading, setLoading] = useState(false);
+  const [editing, setEditing] = useState(null);
 
-  const addRecord = async (e) => {
+  const load = async () => {
+    try {
+      const { data } = await api.get("/records/mine"); // only patient's own records
+      setRecords(data || []);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load records");
+    }
+  };
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  const saveRecord = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await api.post("/records", form);
-      toast.success("Health record saved");
-      setForm({ patientId: "", type: "diagnosis", title: "", description: "" });
+      if (editing) {
+        await api.put(`/records/${editing._id}`, form);
+        toast.success("Record updated");
+      } else {
+        await api.post("/records", form);
+        toast.success("Record saved");
+      }
+      setForm({ type: "diagnosis", title: "", description: "" });
+      setEditing(null);
+      load();
     } catch (err) {
       console.error(err);
       toast.error("Could not save record");
@@ -22,23 +46,24 @@ export default function Records() {
     }
   };
 
-  return (
-    <Layout>
-      <h1 className="text-3xl font-bold text-[#00695C] mb-2">📂 Health Records</h1>
-      <p className="text-gray-600 mb-4">Add patient diagnoses, medications, vaccines, allergies, etc.</p>
+  const editRecord = (r) => {
+    setForm({ type: r.type, title: r.title, description: r.description });
+    setEditing(r);
+  };
 
-      <div className="max-w-xl bg-white p-6 rounded-xl shadow-md">
-        <form onSubmit={addRecord} className="grid gap-4">
-          <input
-            placeholder="Patient ID"
-            value={form.patientId}
-            onChange={e => setForm({ ...form, patientId: e.target.value })}
-            className="p-3 border rounded-lg focus:ring-2 focus:ring-[#00695C]"
-            required
-          />
+  return (
+    <PatientLayout>
+      <h1 className="text-3xl font-bold text-[#00695C] mb-2">📂 My Health Records</h1>
+      <p className="text-gray-600 mb-4">
+        View and manage your health history, diagnoses, and treatments.
+      </p>
+
+      {/* Form */}
+      <div className="max-w-xl bg-white p-6 rounded-xl shadow-md mb-8">
+        <form onSubmit={saveRecord} className="grid gap-4">
           <select
             value={form.type}
-            onChange={e => setForm({ ...form, type: e.target.value })}
+            onChange={(e) => setForm({ ...form, type: e.target.value })}
             className="p-3 border rounded-lg focus:ring-2 focus:ring-[#00695C]"
           >
             <option value="diagnosis">Diagnosis</option>
@@ -48,27 +73,51 @@ export default function Records() {
             <option value="other">Other</option>
           </select>
           <input
-            placeholder="Title (e.g., Hypertension)"
+            placeholder="Title"
             value={form.title}
-            onChange={e => setForm({ ...form, title: e.target.value })}
+            onChange={(e) => setForm({ ...form, title: e.target.value })}
             className="p-3 border rounded-lg focus:ring-2 focus:ring-[#00695C]"
             required
           />
           <textarea
             placeholder="Details"
             value={form.description}
-            onChange={e => setForm({ ...form, description: e.target.value })}
-            className="p-3 border rounded-lg focus:ring-2 focus:ring-[#00695C] min-h-[120px]"
+            onChange={(e) => setForm({ ...form, description: e.target.value })}
+            className="p-3 border rounded-lg focus:ring-2 focus:ring-[#00695C] min-h-[100px]"
           />
           <button
             type="submit"
             disabled={loading}
             className="bg-[#00695C] text-white py-3 rounded-lg hover:bg-[#004D40] transition font-semibold"
           >
-            {loading ? "Saving..." : "Save record"}
+            {loading ? "Saving..." : editing ? "Update record" : "Save record"}
           </button>
         </form>
       </div>
-    </Layout>
+
+      {/* Records list */}
+      <div className="grid gap-4">
+        {records.length === 0 ? (
+          <p className="text-gray-500">No records found</p>
+        ) : (
+          records.map((r) => (
+            <div key={r._id} className="bg-white p-5 rounded-xl shadow-md border-l-4 border-[#00695C]">
+              <h2 className="text-xl font-semibold text-gray-800">{r.title}</h2>
+              <p className="text-sm text-gray-500 capitalize">{r.type}</p>
+              <p className="mt-2 text-gray-700">{r.description}</p>
+              <p className="text-xs text-gray-400 mt-2">
+                Added on {new Date(r.createdAt).toLocaleDateString()}
+              </p>
+              <button
+                onClick={() => editRecord(r)}
+                className="mt-3 bg-[#3498db] text-white px-3 py-1 rounded hover:bg-[#2980b9] transition"
+              >
+                Edit
+              </button>
+            </div>
+          ))
+        )}
+      </div>
+    </PatientLayout>
   );
 }

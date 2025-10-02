@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../utils/api";
-import Layout from "../components/Layout";
+import PatientLayout from "../components/PatientLayout";
 
 export default function Dashboard() {
+  console.log("🎯 Patient dashboard rendered");
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -13,7 +14,6 @@ export default function Dashboard() {
         setUser(data.user || JSON.parse(localStorage.getItem("user")));
       } catch (err) {
         console.error(err);
-        // fallback to local storage
         const stored = localStorage.getItem("user");
         if (stored) setUser(JSON.parse(stored));
       }
@@ -22,7 +22,7 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <Layout>
+    <PatientLayout>
       {/* Header */}
       <header className="mb-8 text-center">
         <h1 className="text-3xl md:text-4xl font-bold text-[#00695C]">
@@ -35,25 +35,25 @@ export default function Dashboard() {
         )}
       </header>
 
-      {/* Dashboard Grid */}
+      {/* Patient Dashboard Grid */}
       <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <div className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
-          <h3 className="text-xl font-semibold text-[#00695C] mb-2">👩‍⚕️ Patients</h3>
+          <h3 className="text-xl font-semibold text-[#00695C] mb-2">💊 Prescriptions</h3>
           <p className="text-gray-600 mb-4">
-            Manage patients' records, view history & add new entries.
+            View your prescribed medications and instructions.
           </p>
           <Link
-            to="/patients"
+            to="/prescriptions"
             className="inline-block bg-[#1abc9c] text-white px-4 py-2 rounded-lg hover:bg-[#16a085] transition"
           >
-            Open Patients
+            My Prescriptions
           </Link>
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
           <h3 className="text-xl font-semibold text-[#00695C] mb-2">⏰ Reminders</h3>
           <p className="text-gray-600 mb-4">
-            Schedule SMS reminders for medications and visits.
+            Get SMS reminders for medications and appointments.
           </p>
           <Link
             to="/reminders"
@@ -64,9 +64,9 @@ export default function Dashboard() {
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
-          <h3 className="text-xl font-semibold text-[#00695C] mb-2">📂 Records</h3>
+          <h3 className="text-xl font-semibold text-[#00695C] mb-2">📂 My Records</h3>
           <p className="text-gray-600 mb-4">
-            View and export patient medical logs.
+            Access your medical history and health logs.
           </p>
           <Link
             to="/records"
@@ -79,7 +79,7 @@ export default function Dashboard() {
         <div className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
           <h3 className="text-xl font-semibold text-[#00695C] mb-2">📅 Appointments</h3>
           <p className="text-gray-600 mb-4">
-            Track upcoming appointments and visits.
+            Book and track upcoming appointments.
           </p>
           <Link
             to="/appointments"
@@ -89,6 +89,6 @@ export default function Dashboard() {
           </Link>
         </div>
       </section>
-    </Layout>
+    </PatientLayout>
   );
 }

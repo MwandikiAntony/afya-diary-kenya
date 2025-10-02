@@ -2,12 +2,18 @@ const mongoose = require('mongoose');
 
 const otpSchema = new mongoose.Schema({
   phone: { type: String, required: true, index: true },
-  code: { type: String, required: true },   // store short lived code
+  code: { type: String, required: true },
   expiresAt: { type: Date, required: true },
   attempts: { type: Number, default: 0 },
-  used: { type: Boolean, default: false }
-}, { timestamps: true });
+  used: { type: Boolean, default: false },
 
-otpSchema.index({ phone: 1, createdAt: -1 });
+  // ✅ Store the user's intended role
+  role: {
+    type: String,
+    enum: ['patient', 'chemist', 'chv', 'admin'],
+    default: 'patient'
+  }
+
+}, { timestamps: true });
 
 module.exports = mongoose.model('OTP', otpSchema);

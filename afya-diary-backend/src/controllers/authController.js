@@ -1,4 +1,3 @@
-// src/controllers/authController.js
 const OTP = require('../models/OTP');
 const User = require('../models/User');
 const smsService = require('../services/smsService');
@@ -15,16 +14,32 @@ function signJwt(payload, expires = '30d') {
   return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: expires });
 }
 
+function getRedirectByRole(role) {
+  switch (role) {
+    case 'admin': return '/admin/dashboard';
+    case 'doctor': return '/doctor/dashboard';
+    case 'patient': return '/patient/dashboard';
+    default: return '/';
+  }
+}
+
 exports.requestOtp = async (req, res) => {
   try {
-    const { phone } = req.body;
+    const { phone, role = 'patient' } = req.body; // get role, default to 'patient'
     if (!phone) return res.status(400).json({ message: 'phone is required' });
 
-    // generate code and store
+    // generate OTP code
     const code = generateCode();
-    const expiresAt = new Date(Date.now() + OTP_TTL_MIN * 60 * 1000);
 
-    await OTP.create({ phone, code, expiresAt });
+    // create OTP with role included
+    await OTP.create({
+      phone,
+      code,
+      expiresAt: new Date(Date.now() + OTP_TTL_MIN * 60 * 1000), // expires in OTP_TTL_MIN minutes
+      used: false,
+      attempts: 0,
+      role, // save role here
+    });
 
     // send SMS (best-effort)
     const smsText = `AfyaDiary OTP: ${code}. Expires in ${OTP_TTL_MIN} minutes.`;
@@ -32,7 +47,6 @@ exports.requestOtp = async (req, res) => {
       await smsService.sendSMS(phone, smsText);
     } catch (smsErr) {
       console.error('SMS send failed', smsErr);
-      // still return ok so client can try again; dev will log code in console via smsService
     }
 
     return res.json({ ok: true, message: 'OTP sent if phone is valid' });
@@ -42,12 +56,14 @@ exports.requestOtp = async (req, res) => {
   }
 };
 
+
 exports.verifyOtp = async (req, res) => {
   try {
-    const { phone, code, name, shaNumber } = req.body;
+    const { phone, code, name, shaNumber, role } = req.body;  // <-- get role from client
+
     if (!phone || !code) return res.status(400).json({ message: 'phone and code required' });
 
-    // find latest unused OTP
+    // find latest unused OTP for phone
     const otp = await OTP.findOne({ phone, used: false }).sort({ createdAt: -1 });
     if (!otp) return res.status(400).json({ message: 'Invalid or expired code' });
 
@@ -65,30 +81,40 @@ exports.verifyOtp = async (req, res) => {
       return res.status(400).json({ message: 'Invalid code' });
     }
 
-    // mark used
+    // mark OTP as used
     otp.used = true;
     await otp.save();
 
     // find or create user
     let user = await User.findOne({ phone });
     if (!user) {
-      user = await User.create({ phone, name, shaNumber });
+      user = await User.create({ phone, name, shaNumber, role: role || 'patient' });
     } else {
-      // attach SHA if provided and not set
+      // update shaNumber if provided and not set
       if (shaNumber && !user.shaNumber) {
         user.shaNumber = shaNumber;
-        await user.save();
       }
+      // update role if provided and different (optional)
+      if (role && user.role !== role) {
+        user.role = role;
+      }
+      await user.save();
     }
 
+    // sign JWT with userId and role
     const token = signJwt({ userId: user._id, role: user.role }, '30d');
 
-    return res.json({ token, user });
+    // determine redirect URL based on role
+    const redirectTo = getRedirectByRole(user.role);
+
+    return res.json({ token, user, redirectTo });
   } catch (err) {
     console.error('verifyOtp error', err);
     return res.status(500).json({ message: 'server error' });
   }
 };
+
+
 
 // optional: allow patient to set a PIN for quick local auth (not required)
 exports.setPin = async (req, res) => {

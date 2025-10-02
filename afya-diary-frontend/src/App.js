@@ -16,9 +16,11 @@ import Appointments from "./pages/Appointments";
 import Records from "./pages/Records";
 import Reminders from "./pages/Reminders";
 import Profile from "./pages/Profile";
+import Notifications from "./pages/Notifications";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
+import Prescriptions from "./pages/Prescriptions";
 
 export default function App() {
   return (
@@ -50,6 +52,14 @@ export default function App() {
         <Route
           path="/reminders"
           element={<ProtectedRoute role="patient"><Reminders /></ProtectedRoute>}
+        />
+                <Route
+          path="/notifications"
+          element={<ProtectedRoute role="patient"><Notifications /></ProtectedRoute>}
+        />
+        <Route
+          path="/prescriptions"
+          element={<ProtectedRoute role="patient"><Prescriptions /></ProtectedRoute>}
         />
         <Route
           path="/profile"

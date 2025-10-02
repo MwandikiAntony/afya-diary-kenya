@@ -1,21 +1,8 @@
-// src/components/PublicRoute.js
+// src/components/ProtectedRoute.js
 import React from "react";
 import { Navigate } from "react-router-dom";
 
-function getRedirectPath(user) {
-  if (!user) return "/login";
-  if (user.role === "patient") return "/dashboard";
-  if (user.role === "chv") return "/chv-dashboard";
-  if (user.role === "chemist") return "/chemist-dashboard";
-  return "/dashboard";
-}
-
-/**
- * PublicRoute
- * - If user is logged in, redirect to their dashboard
- * - Otherwise show the public page (children)
- */
-export default function PublicRoute({ children }) {
+export default function ProtectedRoute({ children, role }) {
   let token = null;
   let user = null;
 
@@ -24,14 +11,31 @@ export default function PublicRoute({ children }) {
     const u = localStorage.getItem("user");
     user = u ? JSON.parse(u) : null;
   } catch (err) {
-    console.error("Invalid localStorage user:", err);
+    console.error("Error parsing localStorage user:", err);
     token = null;
     user = null;
   }
 
-  if (token && user) {
-    return <Navigate to={getRedirectPath(user)} replace />;
+  const isLoggedIn =
+    token &&
+    typeof token === "string" &&
+    token.length > 10 &&
+    user &&
+    typeof user === "object" &&
+    ["patient", "chv", "chemist"].includes(user.role);
+
+  // 🚫 Not logged in
+  if (!isLoggedIn) {
+    console.warn("User not logged in or invalid token");
+    return <Navigate to="/login" replace />;
   }
 
+  // 🚫 Wrong role
+  if (role && user.role !== role) {
+    console.warn(`Unauthorized: Expected role ${role}, got ${user.role}`);
+    return <Navigate to="/" replace />;
+  }
+
+  // ✅ Access granted
   return children;
 }
