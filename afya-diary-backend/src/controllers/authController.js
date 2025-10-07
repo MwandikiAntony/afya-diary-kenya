@@ -2,6 +2,8 @@ const OTP = require('../models/OTP');
 const User = require('../models/User');
 const smsService = require('../services/smsService');
 const jwt = require('jsonwebtoken');
+const db = require('../config/db'); // <-- make sure this exists
+const sendOtp = require('../utils/sendOtp'); 
 
 const OTP_TTL_MIN = parseInt(process.env.OTP_TTL_MIN || '5', 10); // minutes
 const OTP_MAX_ATTEMPTS = 5;
@@ -151,3 +153,36 @@ exports.loginWithPin = async (req, res) => {
     return res.status(500).json({ message: 'server error' });
   }
 };
+
+//resend OTP
+
+exports.resendOtp = async (req, res) => {
+  try {
+    const { phone, role } = req.body;
+
+    if (!phone) {
+      return res.status(400).json({ message: "Phone number is required" });
+    }
+
+    // generate a new 6-digit code
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    // store/update OTP in DB
+    await db.query(
+      "UPDATE users SET otp = $1, otp_expires_at = NOW() + INTERVAL '10 minutes' WHERE phone = $2",
+      [otp, phone]
+    );
+
+    // send OTP via SMS
+    await sendOtp(phone, otp);
+
+    return res.status(200).json({ message: "OTP resent successfully" });
+  } catch (err) {
+    console.error("resendOtp error:", err);
+    return res.status(500).json({ message: "Failed to resend OTP" });
+  }
+};
+
+
+
+

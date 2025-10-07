@@ -7,33 +7,33 @@ export default function Verify() {
   const location = useLocation();
   const navigate = useNavigate();
   const phone = location.state?.phone || "";
-  const role = location.state?.role || "patient"; // ✅ Get role from navigation state
+  const role = location.state?.role || "patient";
 
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [timer, setTimer] = useState(60); // ⏱ countdown timer
 
+  // Start countdown timer
   useEffect(() => {
-    if (!phone) {
-      // Optional: navigate("/login");
+    if (timer > 0) {
+      const countdown = setInterval(() => setTimer((t) => t - 1), 1000);
+      return () => clearInterval(countdown);
     }
-  }, [phone]);
+  }, [timer]);
 
   const verifyOtp = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const { data } = await api.post("/auth/verify-otp", {
-        phone,
-        code: otp,
-        role, // ✅ Include role in the request
-      });
+      const { data } = await api.post("/auth/verify-otp", { phone, code: otp, role });
 
       if (data?.token && data?.user) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
         toast.success("✅ Login successful");
 
-        // ✅ Redirect based on user role
+        // Redirect by role
         if (data.user.role === "patient") navigate("/dashboard");
         else if (data.user.role === "chv") navigate("/chv-dashboard");
         else if (data.user.role === "chemist") navigate("/chemist-dashboard");
@@ -49,6 +49,22 @@ export default function Verify() {
     }
   };
 
+  // Resend OTP handler
+  const resendOtp = async () => {
+    if (timer > 0) return; // Prevent spamming
+    setResending(true);
+    try {
+      await api.post("/auth/resend-otp", { phone, role });
+      toast.success("OTP resent successfully!");
+      setTimer(60); // Restart timer
+    } catch (err) {
+      console.error("resendOtp error", err);
+      toast.error(err.response?.data?.message || "Failed to resend OTP");
+    } finally {
+      setResending(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-green-50 px-6">
       <div className="bg-white shadow-lg rounded-xl p-8 w-full max-w-md">
@@ -61,7 +77,10 @@ export default function Verify() {
         ) : (
           <p className="text-gray-600 text-center mb-4">
             No phone number found.{" "}
-            <Link to="/login" className="text-blue-600 underline">Go back to login</Link>.
+            <Link to="/login" className="text-blue-600 underline">
+              Go back to login
+            </Link>
+            .
           </p>
         )}
 
@@ -74,6 +93,7 @@ export default function Verify() {
             required
             className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500"
           />
+
           <button
             type="submit"
             disabled={loading}
@@ -84,6 +104,23 @@ export default function Verify() {
             {loading ? "Verifying..." : "Verify OTP"}
           </button>
         </form>
+
+        {/* ⏱ Resend OTP Section */}
+        <div className="mt-4 text-center text-sm">
+          {timer > 0 ? (
+            <p className="text-gray-500">
+              You can resend OTP in <span className="font-semibold">{timer}s</span>
+            </p>
+          ) : (
+            <button
+              onClick={resendOtp}
+              disabled={resending}
+              className="text-blue-600 font-medium hover:underline disabled:text-gray-400"
+            >
+              {resending ? "Resending..." : "Resend OTP"}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

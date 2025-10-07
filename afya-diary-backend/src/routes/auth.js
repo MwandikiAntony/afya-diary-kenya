@@ -7,6 +7,7 @@ const rateLimiter = require('../middlewares/rateLimiter');
 
 // Public: request OTP (with rate limiter)
 router.post('/request-otp', rateLimiter, authController.requestOtp);
+router.post("/resend-otp", authController.resendOtp);
 
 // Public: verify OTP -> returns JWT and user
 router.post('/verify-otp', authController.verifyOtp);

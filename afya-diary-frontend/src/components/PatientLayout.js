@@ -1,9 +1,10 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Home, ClipboardList, Bell, User } from "lucide-react";
 
 export default function PatientLayout({ children }) {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const links = [
     { to: "/dashboard", label: "Home", icon: <Home size={20} /> },
@@ -11,6 +12,11 @@ export default function PatientLayout({ children }) {
     { to: "/notifications", label: "Notifications", icon: <Bell size={20} /> },
     { to: "/profile", label: "Profile", icon: <User size={20} /> },
   ];
+
+  const handleLogout = () => {
+    localStorage.removeItem("token"); // clear auth token or session
+    navigate("/login");
+  };
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -34,6 +40,14 @@ export default function PatientLayout({ children }) {
               {link.label}
             </Link>
           ))}
+
+          {/* Logout button */}
+          <button
+          onClick={handleLogout}
+          className="mt-4 bg-red-600 hover:bg-red-700 py-2 px-3 rounded font-semibold transition"
+        >
+          🚪 Logout
+        </button>
         </nav>
       </div>
 
