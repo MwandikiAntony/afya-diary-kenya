@@ -54,7 +54,7 @@ export default function CHVReports() {
     <CHVLayout>
       <h1 className="text-3xl font-bold text-blue-700 mb-4">📝 Reports</h1>
       <div className="grid md:grid-cols-2 gap-6">
-        {/* Form */}
+        {/* Form - (Unchanged) */}
         <form onSubmit={saveReport} className="bg-white p-6 rounded-xl shadow-md">
           <h3 className="text-lg font-semibold mb-3 text-blue-600">New Report</h3>
           <input
@@ -87,7 +87,7 @@ export default function CHVReports() {
           </button>
         </form>
 
-        {/* List */}
+        {/* List - FIX APPLIED HERE */}
         <div className="bg-white p-6 rounded-xl shadow-md">
           <h3 className="text-lg font-semibold mb-3 text-blue-600">Existing Reports</h3>
           <div className="overflow-x-auto">
@@ -104,7 +104,12 @@ export default function CHVReports() {
                 {reports.length ? (
                   reports.map((r) => (
                     <tr key={r._id} className="border-b hover:bg-gray-50">
-                      <td className="p-3">{r.patientId}</td>
+                      
+                      {/* 🟢 FIX APPLIED: Check if patientId exists and access its 'name' property. */}
+                      <td className="p-3">
+                        {r.patientId ? r.patientId.name : r.patientId || "N/A"}
+                      </td>
+                      
                       <td className="p-3">{r.title}</td>
                       <td className="p-3">{r.notes}</td>
                       <td className="p-3">

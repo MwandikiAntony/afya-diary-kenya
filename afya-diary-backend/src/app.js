@@ -13,6 +13,10 @@ const chemistRoutes = require('./routes/chemistRoutes');
 
 
 
+const patientRoutes = require('./routes/patientRoutes');
+const reportRoutes = require('./routes/reportRoutes');
+
+
 
 const app = express();
 
@@ -30,6 +34,20 @@ app.use("/api/chvs", chvRoutes);
 app.use('/api/reminders', reminderRoutes);
 app.use('/api/records', healthRecordRoutes);
 app.use('/api/chemist', chemistRoutes);
+app.use('/api/patients', patientRoutes);
+app.use('/api/reports', reportRoutes);
+
+app.get('/api/patients', (req, res) => {
+  // logic to return patients
+});
+
+app.get('/api/patients/assigned', (req, res) => {
+  // logic to return assigned patients
+});
+
+app.get('/api/reports', (req, res) => {
+  // logic to return reports
+});
 
 // Health check
 app.get("/", (req, res) => {
