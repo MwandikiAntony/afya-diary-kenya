@@ -1,7 +1,7 @@
 // src/pages/CHVDashboard.js
 import React, { useEffect, useState } from "react";
-import CHVLayout from "../components/CHVLayout";
-import api from "../utils/api";
+import CHVLayout from "../../components/CHVLayout";
+import api from "../../utils/api";
 
 export default function CHVDashboard() {
   const [patients, setPatients] = useState([]);

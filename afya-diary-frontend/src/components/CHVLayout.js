@@ -1,9 +1,10 @@
-import React from "react";
-import { Link, useLocation } from "react-router-dom";
+
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Home, Users, FileText, User } from "lucide-react";
 
 export default function CHVLayout({ children }) {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const links = [
     { to: "/chv-dashboard", label: "Dashboard", icon: <Home size={20} /> },
@@ -11,6 +12,11 @@ export default function CHVLayout({ children }) {
     { to: "/chv-reports", label: "Reports", icon: <FileText size={20} /> },
     { to: "/chv-profile", label: "Profile", icon: <User size={20} /> },
   ];
+
+  const handleLogout =() => {
+    localStorage.removeItem ("token"); //clear token on logout
+    navigate("/login");
+  };
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -34,6 +40,12 @@ export default function CHVLayout({ children }) {
               {link.label}
             </Link>
           ))}
+         <button
+          onClick={handleLogout}
+          className="mt-4 bg-red-600 hover:bg-red-700 py-2 px-3 rounded font-semibold transition"
+        >
+          🚪 Logout
+        </button>
         </nav>
       </div>
 

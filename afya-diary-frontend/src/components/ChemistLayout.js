@@ -1,9 +1,10 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Home, QrCode, Package, User } from "lucide-react";
 
 export default function ChemistLayout({ children }) {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const links = [
     { to: "/chemist-dashboard", label: "Dashboard", icon: <Home size={20} /> },
@@ -11,6 +12,11 @@ export default function ChemistLayout({ children }) {
     { to: "/chemist-inventory", label: "Inventory", icon: <Package size={20} /> },
     { to: "/chemist-profile", label: "Profile", icon: <User size={20} /> },
   ];
+   
+  const handleLogout = () => {
+    localStorage.removeItem("token"); //clear auth token
+    navigate("/login");
+  }
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -34,6 +40,12 @@ export default function ChemistLayout({ children }) {
               {link.label}
             </Link>
           ))}
+         <button
+          onClick={handleLogout}
+          className="mt-4 bg-red-600 hover:bg-red-700 py-2 px-3 rounded font-semibold transition"
+        >
+          🚪 Logout
+        </button>
         </nav>
       </div>
 

@@ -55,7 +55,7 @@ export default function Records() {
     <PatientLayout>
       <h1 className="text-3xl font-bold text-[#00695C] mb-2">📂 My Health Records</h1>
       <p className="text-gray-600 mb-4">
-        View and manage your health history, diagnoses, and treatments.
+        You can view and manage your health history, diagnosis and previous treatments.
       </p>
 
       {/* Form */}

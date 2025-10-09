@@ -8,19 +8,23 @@ import Verify from "./pages/Verify";
 import Register from "./pages/Register";
 
 import Dashboard from "./pages/Dashboard";
-import CHVDashboard from "./pages/CHVDashboard";
-import ChemistDashboard from "./pages/ChemistDashboard";
-
 import Patients from "./pages/Patients";
 import Appointments from "./pages/Appointments";
 import Records from "./pages/Records";
 import Reminders from "./pages/Reminders";
 import Profile from "./pages/Profile";
 import Notifications from "./pages/Notifications";
-
+import ChemistDashboard from "./pages/chemist/ChemistDashboard";
+import ChemistInventory from "./pages/chemist/ChemistInventory";
+import ChemistProfile from "./pages/chemist/ChemistProfile";
+import CHVDashboard from "./pages/chv/CHVDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
 import Prescriptions from "./pages/Prescriptions";
+import ChemistScan from "./pages/chemist/ChemistScan";
+import CHVPatients from "./pages/chv/CHVPatients";
+import CHVProfile from "./pages/chv/CHVProfile";
+import CHVReports from "./pages/chv/CHVReports";
 
 export default function App() {
   return (
@@ -71,12 +75,27 @@ export default function App() {
           path="/chv-dashboard"
           element={<ProtectedRoute role="chv"><CHVDashboard /></ProtectedRoute>}
         />
+        <Route
+        path="/chv-patients"
+        element={<ProtectedRoute role="chv"><CHVPatients/></ProtectedRoute>} />
+        <Route 
+        path="/chv-profile"
+        element={<ProtectedRoute role="chv"><CHVProfile/></ProtectedRoute>} />
+        <Route path="chv-reports"
+        element={<ProtectedRoute role="chv"><CHVReports/></ProtectedRoute>} />
 
         {/* Chemist */}
         <Route
           path="/chemist-dashboard"
           element={<ProtectedRoute role="chemist"><ChemistDashboard /></ProtectedRoute>}
         />
+        <Route path="/chemist-scan"
+        element={<ProtectedRoute role="chemist"><ChemistScan/></ProtectedRoute>}
+        />
+        <Route path="/chemist-profile"
+        element={<ProtectedRoute role="chemist"><ChemistProfile/></ProtectedRoute>} />
+        <Route path="/chemist-inventory"
+        element={<ProtectedRoute role="chemist"><ChemistInventory/></ProtectedRoute>} />
 
         {/* fallback */}
 <Route path="*" element={<PublicRoute><Home /></PublicRoute>} />

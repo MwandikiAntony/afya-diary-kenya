@@ -1,6 +1,6 @@
 // src/pages/ChemistDashboard.js
 import React, { useState } from "react";
-import ChemistLayout from "../components/ChemistLayout";
+import ChemistLayout from "../../components/ChemistLayout";
 import BarcodeScannerComponent from "react-qr-barcode-scanner";
 
 export default function ChemistDashboard() {
