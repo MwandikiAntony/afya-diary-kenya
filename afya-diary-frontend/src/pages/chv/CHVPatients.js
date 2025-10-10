@@ -14,14 +14,14 @@ export default function ChvPatients() {
     gender: "",
   });
 
-  // Fetch patients
   useEffect(() => {
     loadPatients();
   }, []);
 
   const loadPatients = async () => {
     try {
-      const { data } = await api.get("/patients");
+      // ✅ CHVs should only see assigned patients
+      const { data } = await api.get("/patients/assigned");
       setPatients(data);
     } catch (err) {
       console.error(err);
@@ -29,7 +29,6 @@ export default function ChvPatients() {
     }
   };
 
-  // Open modal (for add/edit)
   const openModal = (patient = null) => {
     if (patient) {
       setEditing(patient._id);
@@ -46,16 +45,15 @@ export default function ChvPatients() {
     setOpen(true);
   };
 
-  // Save or update patient
   const savePatient = async (e) => {
     e.preventDefault();
     try {
       if (editing) {
         await api.put(`/patients/${editing}`, form);
-        toast.success("✅ Patient updated successfully");
+        toast.success("Patient updated successfully");
       } else {
         await api.post("/patients", form);
-        toast.success("✅ Patient added successfully");
+        toast.success("Patient added successfully");
       }
       setOpen(false);
       setEditing(null);
@@ -63,16 +61,15 @@ export default function ChvPatients() {
       loadPatients();
     } catch (err) {
       console.error(err);
-      toast.error("❌ Failed to save patient");
+      toast.error("Failed to save patient");
     }
   };
 
-  // Delete patient
   const deletePatient = async (id) => {
     if (!window.confirm("Are you sure you want to delete this patient?")) return;
     try {
       await api.delete(`/patients/${id}`);
-      toast.success("🗑️ Patient deleted");
+      toast.success("Patient deleted");
       loadPatients();
     } catch (err) {
       console.error(err);
@@ -85,11 +82,11 @@ export default function ChvPatients() {
       <div className="p-6">
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold text-[#00695C]">
-            👥 Manage Patients
+            👥 Assigned Patients
           </h1>
           <button
             onClick={() => openModal()}
-            className="bg-[#00695C] hover:bg-[#004D40] text-white px-4 py-2 rounded-lg"
+            className="bg-[#00695C] hover:bg-[#004D40] text-white px-4 py-2 rounded-lg shadow-md"
           >
             + Add Patient
           </button>
@@ -118,13 +115,13 @@ export default function ChvPatients() {
                     <td className="p-3 flex justify-center gap-2">
                       <button
                         onClick={() => openModal(p)}
-                        className="px-3 py-1 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50"
+                        className="border border-blue-600 text-blue-600 px-3 py-1 rounded-md hover:bg-blue-50"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => deletePatient(p._id)}
-                        className="px-3 py-1 border border-red-600 text-red-600 rounded-lg hover:bg-red-50"
+                        className="border border-red-600 text-red-600 px-3 py-1 rounded-md hover:bg-red-50"
                       >
                         Delete
                       </button>
@@ -134,7 +131,7 @@ export default function ChvPatients() {
               ) : (
                 <tr>
                   <td colSpan="5" className="p-4 text-center text-gray-500">
-                    No patients found
+                    No patients assigned yet
                   </td>
                 </tr>
               )}
@@ -142,11 +139,11 @@ export default function ChvPatients() {
           </table>
         </div>
 
-        {/* Custom Modal */}
+        {/* Modal */}
         {open && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-            <div className="bg-white p-6 rounded-xl w-[90%] max-w-md shadow-lg">
-              <h2 className="text-xl font-bold mb-4">
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex justify-center items-center z-50">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md relative">
+              <h2 className="text-xl font-semibold mb-4 text-[#00695C]">
                 {editing ? "Edit Patient" : "Add New Patient"}
               </h2>
 
@@ -183,17 +180,17 @@ export default function ChvPatients() {
                   <option value="female">Female</option>
                 </select>
 
-                <div className="flex justify-end gap-2 mt-3">
+                <div className="flex justify-end gap-2 mt-4">
                   <button
                     type="button"
                     onClick={() => setOpen(false)}
-                    className="px-4 py-2 border rounded-lg"
+                    className="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-100"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 bg-[#00695C] text-white rounded-lg hover:bg-[#004D40]"
+                    className="px-4 py-2 bg-[#00695C] hover:bg-[#004D40] text-white rounded-lg"
                   >
                     {editing ? "Update" : "Add"}
                   </button>

@@ -30,7 +30,7 @@ app.use("/api/auth", authRoutes);   // OTP auth, login-pin, etc.
 app.use("/api/users", userRoutes); // profile & user management
 app.use("/api/records", recordRoutes);
 app.use("/api/prescriptions", prescriptionRoutes);
-app.use("/api/chvs", chvRoutes);
+app.use("/api/chv", chvRoutes);
 app.use('/api/reminders', reminderRoutes);
 app.use('/api/records', healthRecordRoutes);
 app.use('/api/chemist', chemistRoutes);

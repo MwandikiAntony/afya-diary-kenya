@@ -3,7 +3,7 @@ const HealthRecord = require('../models/HealthRecord');
 const jwt = require('jsonwebtoken');
 const DispensedMedication = require('../models/DispensedMedication');
 const Reminder = require('../models/Reminder');
-
+const Patient = require('../models/Patient');
 const User = require('../models/User');
 
 // Generate QR token for patient
@@ -114,4 +114,27 @@ exports.getDispensedMedications = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
+
+
+exports.assignPatientToCHV = async (req, res) => {
+  try {
+    const { patientId, chvId } = req.body;
+
+    if (!patientId || !chvId)
+      return res.status(400).json({ message: 'Patient and CHV required' });
+
+    const patient = await Patient.findById(patientId);
+    if (!patient) return res.status(404).json({ message: 'Patient not found' });
+
+    patient.chvId = chvId;
+    await patient.save();
+
+    res.json({ message: 'Patient successfully assigned to CHV', patient });
+  } catch (err) {
+    console.error('assignPatientToCHV', err);
+    res.status(500).json({ message: 'Failed to assign patient' });
+  }
+};
+
 

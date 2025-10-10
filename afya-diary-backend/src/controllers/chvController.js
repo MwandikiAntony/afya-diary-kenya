@@ -46,15 +46,15 @@ exports.createReminder = async (req, res) => {
 };
 
 // ✅ View reminders
-exports.getReminders = async (req, res) => {
+exports.getAssignedReminders = async (req, res) => {
   try {
-    const reminders = await Reminder.find({ chv: req.user._id })
-      .populate("patient", "phone")
-      .sort({ remindAt: 1 });
+    const reminders = await Reminder.find({ creatorId: req.user._id })
+      .populate("patientId", "name phone")
+      .sort({ dueDate: 1 });
 
-    res.json({ reminders });
+    res.json(reminders);
   } catch (err) {
-    console.error("getReminders error", err);
+    console.error("getAssignedReminders error", err);
     res.status(500).json({ message: "Server error" });
   }
 };
