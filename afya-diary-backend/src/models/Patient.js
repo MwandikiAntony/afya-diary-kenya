@@ -6,7 +6,7 @@ const patientSchema = new mongoose.Schema({
   age: { type: Number },
   gender: { type: String, enum: ['Male', 'Female', 'Other', 'male', 'female', 'other'] 
 },
-  shaNumber: { type: String },
+  shaNumber: { type: String, required: true, unique: true },
   qrCode: { type: String, unique: true },
   // Optional: owner CHV userid
   chvId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },

@@ -12,14 +12,20 @@ import {
 import { Card, CardHeader, CardContent } from "../../components/ui/card";
 import toast from "react-hot-toast";
 import api from "../../utils/api";
+import { useNavigate } from "react-router-dom"; // ⬅️ add this near top
+  
 
 export default function ChemistDashboard() {
   const [shaNumber, setShaNumber] = useState("");
   const [patient, setPatient] = useState(null);
   const [loading, setLoading] = useState(false);
   const [dispenses, setDispenses] = useState([]);
+  const [medicines, setMedicines] = useState([]);
   const [openAdd, setOpenAdd] = useState(false);
   const [openDispense, setOpenDispense] = useState(false);
+  const [openMedicine, setOpenMedicine] = useState(false);
+  const [openRecord, setOpenRecord] = useState(false);
+  const navigate = useNavigate();
 
   // ✅ Fetch dispensed medicines
   const fetchDispenses = async () => {
@@ -31,28 +37,45 @@ export default function ChemistDashboard() {
     }
   };
 
+  // ✅ Fetch medicines
+  const fetchMedicines = async () => {
+    try {
+      const { data } = await api.get("/chemist/medicines");
+      setMedicines(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   useEffect(() => {
     fetchDispenses();
+    fetchMedicines();
   }, []);
 
   // ✅ Search patient by SHA number
-  const handleSearch = async () => {
-    try {
-      setLoading(true);
-      const { data } = await api.get(`/patients/search/${shaNumber}`);
-      if (data) {
-        setPatient(data);
-        toast.success("Patient found!");
-      } else {
-        toast.error("No patient found with that SHA number.");
-      }
-    } catch (error) {
-      toast.error("Error finding patient.");
-      setPatient(null);
-    } finally {
-      setLoading(false);
+const handleSearch = async () => {
+  try {
+    setLoading(true);
+    const { data } = await api.get(`/patients/search/${shaNumber}`, {
+      headers: { 'Cache-Control': 'no-cache' },
+    });
+
+    if (data && data.shaNumber) {
+      toast.success("Patient found!");
+      console.log("Navigating to patient page:", data);
+      navigate(`/chemist/patient/${data.shaNumber}`, { state: { patient: data } });
+    } else {
+      toast.error("Patient not found.");
     }
-  };
+  } catch (error) {
+    console.error("Search error:", error);
+    toast.error("Error finding patient.");
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   return (
     <ChemistLayout>
@@ -88,6 +111,24 @@ export default function ChemistDashboard() {
               />
             </DialogContent>
           </Dialog>
+
+          <Dialog open={openMedicine} onOpenChange={setOpenMedicine}>
+            <DialogTrigger asChild>
+              <Button variant="outline">Add Medicine</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Add New Medicine</DialogTitle>
+              </DialogHeader>
+              <AddMedicineForm
+                onSuccess={() => {
+                  toast.success("Medicine added!");
+                  fetchMedicines();
+                  setOpenMedicine(false);
+                }}
+              />
+            </DialogContent>
+          </Dialog>
         </div>
 
         {/* Patient Details */}
@@ -101,7 +142,7 @@ export default function ChemistDashboard() {
               {patient.shaNumber && <p>🧾 SHA Number: {patient.shaNumber}</p>}
               <p>👩‍⚕️ Assigned CHV: {patient.chv?.name || "Unassigned"}</p>
 
-              <div className="mt-4">
+              <div className="mt-4 flex gap-3">
                 <Dialog open={openDispense} onOpenChange={setOpenDispense}>
                   <DialogTrigger asChild>
                     <Button>Dispense Medicine</Button>
@@ -120,10 +161,59 @@ export default function ChemistDashboard() {
                     />
                   </DialogContent>
                 </Dialog>
+
+                <Dialog open={openRecord} onOpenChange={setOpenRecord}>
+                  <DialogTrigger asChild>
+                    <Button variant="secondary">Add Record</Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Add Patient Record</DialogTitle>
+                    </DialogHeader>
+                    <AddRecordForm
+                      patient={patient}
+                      onSuccess={() => {
+                        toast.success("Record added successfully!");
+                        setOpenRecord(false);
+                      }}
+                    />
+                  </DialogContent>
+                </Dialog>
               </div>
             </CardContent>
           </Card>
         )}
+
+        {/* Medicine Stock */}
+        <Card>
+          <CardHeader>
+            <h2 className="text-lg font-semibold">Available Medicines</h2>
+          </CardHeader>
+          <CardContent>
+            {medicines.length > 0 ? (
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr className="border-b bg-gray-50">
+                    <th className="text-left p-2">Name</th>
+                    <th className="text-left p-2">Stock</th>
+                    <th className="text-left p-2">Price</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {medicines.map((m) => (
+                    <tr key={m._id} className="border-b hover:bg-gray-50">
+                      <td className="p-2">{m.name}</td>
+                      <td className="p-2">{m.stock}</td>
+                      <td className="p-2">Ksh {m.price || "-"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p>No medicines available.</p>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Dispensed History */}
         <Card>
@@ -195,41 +285,78 @@ function AddPatientForm({ onSuccess }) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-      <Input
-        placeholder="Full Name"
-        name="name"
-        value={form.name}
-        onChange={handleChange}
-        required
-      />
-      <Input
-        placeholder="Phone Number"
-        name="phone"
-        value={form.phone}
-        onChange={handleChange}
-        required
-      />
-      <Input
-        placeholder="Email (optional)"
-        name="email"
-        value={form.email}
-        onChange={handleChange}
-      />
-      <Input
-        placeholder="Gender (optional)"
-        name="gender"
-        value={form.gender}
-        onChange={handleChange}
-      />
-      <Input
-        placeholder="Age (optional)"
-        name="age"
-        value={form.age}
-        onChange={handleChange}
-      />
+      <Input placeholder="Full Name" name="name" value={form.name} onChange={handleChange} required />
+      <Input placeholder="Phone Number" name="phone" value={form.phone} onChange={handleChange} required />
+      <Input placeholder="Email (optional)" name="email" value={form.email} onChange={handleChange} />
+      <Input placeholder="Gender (optional)" name="gender" value={form.gender} onChange={handleChange} />
+      <Input placeholder="Age (optional)" name="age" value={form.age} onChange={handleChange} />
+      <Button type="submit" disabled={saving}>{saving ? "Saving..." : "Add Patient"}</Button>
+    </form>
+  );
+}
 
+/* ✅ Add Medicine Form */
+function AddMedicineForm({ onSuccess }) {
+  const [form, setForm] = useState({ name: "", stock: "", price: "" });
+  const [saving, setSaving] = useState(false);
+
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.name || !form.stock)
+      return toast.error("Name and stock are required.");
+    try {
+      setSaving(true);
+      await api.post("/chemist/add-medicine", form);
+      onSuccess();
+    } catch (error) {
+      toast.error("Error adding medicine.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+      <Input placeholder="Medicine Name" name="name" value={form.name} onChange={handleChange} required />
+      <Input placeholder="Stock Quantity" name="stock" type="number" value={form.stock} onChange={handleChange} required />
+      <Input placeholder="Price (optional)" name="price" type="number" value={form.price} onChange={handleChange} />
+      <Button type="submit" disabled={saving}>{saving ? "Saving..." : "Add Medicine"}</Button>
+    </form>
+  );
+}
+
+/* ✅ Add Record Form */
+function AddRecordForm({ patient, onSuccess }) {
+  const [record, setRecord] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!record) return toast.error("Please enter patient record.");
+    try {
+      setSaving(true);
+      await api.post("/chemist/add-record", { patientId: patient._id, record });
+      onSuccess();
+    } catch (error) {
+      toast.error("Error saving record.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+      <textarea
+        className="border rounded p-2 min-h-[100px]"
+        placeholder="Enter patient record..."
+        value={record}
+        onChange={(e) => setRecord(e.target.value)}
+      />
       <Button type="submit" disabled={saving}>
-        {saving ? "Saving..." : "Add Patient"}
+        {saving ? "Saving..." : "Add Record"}
       </Button>
     </form>
   );
@@ -305,3 +432,4 @@ function DispenseForm({ patient, onSuccess }) {
     </form>
   );
 }
+

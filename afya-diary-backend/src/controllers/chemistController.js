@@ -4,125 +4,93 @@ const jwt = require('jsonwebtoken');
 const DispensedMedication = require('../models/DispensedMedication');
 const Reminder = require('../models/Reminder');
 const Patient = require('../models/Patient');
-const User = require('../models/User');
+const Medicine = require('../models/Medicine'); // new model
+const Record = require('../models/Record'); // ✅ create this model if not existing
 
-// Chemist creates a new walk-in patient
+// ✅ Chemist creates a new patient manually (not QR)
 exports.createPatient = async (req, res) => {
   try {
     if (req.user.role !== 'chemist') {
       return res.status(403).json({ message: 'Only chemists can create patients' });
     }
 
-    const { name, phone, email, gender, age } = req.body;
+    const { name, phone, gender, age, shaNumber } = req.body;
 
-    if (!name || !phone) {
-      return res.status(400).json({ message: 'Name and phone are required' });
+    if (!name || !phone || !shaNumber) {
+      return res.status(400).json({ message: 'Name, phone and SHA number are required' });
     }
 
-    // Check if phone already exists
-    const existing = await User.findOne({ phone });
+    // Check if patient already exists by SHA number or phone
+    const existing = await Patient.findOne({
+      $or: [{ phone }, { shaNumber }]
+    });
     if (existing) {
-      return res.status(400).json({ message: 'Patient with this phone already exists' });
+      return res.status(400).json({ message: 'Patient with this phone or SHA number already exists' });
     }
 
-    const newPatient = await User.create({
+    const newPatient = await Patient.create({
       name,
       phone,
-      email: email || '',
-      gender: gender || '',
-      age: age || '',
-      role: 'patient',
-      createdBy: req.user._id,
+      gender,
+      age,
+      shaNumber,
+      chvId: null
+ // Chemist as owner
     });
 
-    res.status(201).json({ message: 'Walk-in patient added successfully', patient: newPatient });
+    res.status(201).json({ message: 'Patient created successfully', patient: newPatient });
   } catch (err) {
-    console.error('createPatient error', err);
+    console.error('createPatient error:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
 
-
-// Generate QR token for patient
-exports.generatePatientQR = async (req, res) => {
-  try {
-    if (req.user.role !== 'patient') {
-      return res.status(403).json({ message: 'Only patients can generate QR' });
-    }
-
-    const token = jwt.sign({ patientId: req.user._id }, process.env.QR_JWT_SECRET, { expiresIn: '1h' });
-
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
-
-    await QRToken.create({
-      patientId: req.user._id,
-      token,
-      expiresAt,
-    });
-
-    res.json({ qrToken: token });
-  } catch (err) {
-    console.error('generatePatientQR error', err);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-// Scan QR token to get patient records
-exports.scanPatientQR = async (req, res) => {
-  try {
-    if (req.user.role !== 'chemist') {
-      return res.status(403).json({ message: 'Only chemists can scan QR' });
-    }
-
-    const { qrToken } = req.body;
-    if (!qrToken) return res.status(400).json({ message: 'QR token required' });
-
-    // Verify JWT
-    let payload;
-    try {
-      payload = jwt.verify(qrToken, process.env.QR_JWT_SECRET);
-    } catch (err) {
-      return res.status(401).json({ message: 'Invalid or expired QR token' });
-    }
-
-    const records = await HealthRecord.find({ patientId: payload.patientId }).sort({ date: -1 });
-    res.json(records);
-  } catch (err) {
-    console.error('scanPatientQR error', err);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
-
-// Chemist records dispensed medication
+// ✅ Chemist records dispensed medication
 exports.dispenseMedication = async (req, res) => {
   try {
     if (req.user.role !== 'chemist') {
       return res.status(403).json({ message: 'Only chemists can dispense medications' });
     }
 
-    const { patientId, medication, dose, instructions, followUpDays } = req.body;
-    if (!patientId || !medication) return res.status(400).json({ message: 'patientId and medication required' });
+    const { patientId, medicineId, quantity, dose, instructions, followUpDays } = req.body;
 
-    const patient = await User.findById(patientId);
-    if (!patient || patient.role !== 'patient') {
+    if (!patientId || !medicineId || !quantity) {
+      return res.status(400).json({ message: 'patientId, medicineId, and quantity are required' });
+    }
+
+    const patient = await Patient.findById(patientId);
+    if (!patient) {
       return res.status(404).json({ message: 'Patient not found' });
     }
 
-    // Create dispensed medication record
+    const medicine = await Medicine.findById(medicineId);
+    if (!medicine) {
+      return res.status(404).json({ message: 'Medicine not found' });
+    }
+
+    // Reduce stock
+    if (medicine.stock < quantity) {
+      return res.status(400).json({ message: 'Not enough stock' });
+    }
+    medicine.stock -= quantity;
+    await medicine.save();
+
     const dispensed = await DispensedMedication.create({
       patientId,
       chemistId: req.user._id,
-      medication,
+      medicineId,
+      medicineName: medicine.name,
       dose,
       instructions,
+      quantity,
     });
 
-    // Optional: create follow-up reminder
+    // Optional: Create reminder
     if (followUpDays && Number(followUpDays) > 0) {
       const reminder = await Reminder.create({
         patientId,
-        message: `Time for follow-up or next dose of ${medication}`,
-        dueDate: new Date(Date.now() + followUpDays * 24 * 60 * 60 * 1000), // X days later
+        message: `Follow-up for ${medicine.name}`,
+        dueDate: new Date(Date.now() + followUpDays * 24 * 60 * 60 * 1000),
         status: 'pending',
         createdBy: req.user._id,
       });
@@ -130,36 +98,70 @@ exports.dispenseMedication = async (req, res) => {
       await dispensed.save();
     }
 
-    res.status(201).json(dispensed);
+    res.status(201).json({ message: 'Medication dispensed successfully', dispensed });
   } catch (err) {
-    console.error('dispenseMedication error', err);
+    console.error('dispenseMedication error:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
-// GET /api/chemist/dispensed/:patientId
+
+// ✅ Get all dispensed medications for a patient
 exports.getDispensedMedications = async (req, res) => {
   try {
-    if (!['chemist', 'chv', 'patient'].includes(req.user.role)) {
-      return res.status(403).json({ message: 'Unauthorized' });
-    }
-
     const { patientId } = req.params;
-    const records = await DispensedMedication.find({ patientId }).sort({ dispensedAt: -1 });
+    const records = await DispensedMedication.find({ patientId })
+      .populate('medicineId', 'name')
+      .sort({ createdAt: -1 });
     res.json(records);
   } catch (err) {
-    console.error('getDispensedMedications error', err);
+    console.error('getDispensedMedications error:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
 
+// ✅ Chemist adds medicine to stock
+exports.addMedicine = async (req, res) => {
+  try {
+    if (req.user.role !== 'chemist') {
+      return res.status(403).json({ message: 'Only chemists can add medicine' });
+    }
 
+    const { name, description, stock, price } = req.body;
+    if (!name || !stock) {
+      return res.status(400).json({ message: 'Name and stock are required' });
+    }
 
+    const existing = await Medicine.findOne({ name });
+    if (existing) {
+      existing.stock += Number(stock);
+      await existing.save();
+      return res.json({ message: 'Medicine stock updated', medicine: existing });
+    }
+
+    const newMed = await Medicine.create({ name, description, stock, price });
+    res.status(201).json({ message: 'Medicine added successfully', medicine: newMed });
+  } catch (err) {
+    console.error('addMedicine error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// ✅ Chemist fetches all medicines
+exports.getMedicines = async (req, res) => {
+  try {
+    const medicines = await Medicine.find().sort({ name: 1 });
+    res.json(medicines);
+  } catch (err) {
+    console.error('getMedicines error:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// ✅ Assign patient to CHV
 exports.assignPatientToCHV = async (req, res) => {
   try {
     const { patientId, chvId } = req.body;
-
-    if (!patientId || !chvId)
-      return res.status(400).json({ message: 'Patient and CHV required' });
+    if (!patientId || !chvId) return res.status(400).json({ message: 'Patient and CHV required' });
 
     const patient = await Patient.findById(patientId);
     if (!patient) return res.status(404).json({ message: 'Patient not found' });
@@ -174,4 +176,35 @@ exports.assignPatientToCHV = async (req, res) => {
   }
 };
 
+exports.generatePatientQR = async (req, res) => {
+  res.json({ message: 'generatePatientQR endpoint not yet implemented' });
+};
+
+exports.scanPatientQR = async (req, res) => {
+  res.json({ message: 'scanPatientQR endpoint not yet implemented' });
+};
+
+
+exports.addPatientRecord = async (req, res) => {
+  try {
+    const { patientId, diagnosis, notes } = req.body;
+
+    if (!patientId || !diagnosis) {
+      return res.status(400).json({ message: 'Missing required fields' });
+    }
+
+    const newRecord = new Record({
+      patientId,
+      diagnosis,
+      notes,
+      createdBy: req.user._id,
+    });
+
+    await newRecord.save();
+    res.status(201).json({ message: 'Record added successfully', record: newRecord });
+  } catch (err) {
+    console.error('Error adding record:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
 

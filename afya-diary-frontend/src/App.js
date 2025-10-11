@@ -6,7 +6,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Verify from "./pages/Verify";
 import Register from "./pages/Register";
-
+import ChemistPatientPage from "./pages/chemist/ChemistPatientPage";
 import Dashboard from "./pages/Dashboard";
 import Patients from "./pages/Patients";
 import Appointments from "./pages/Appointments";
@@ -25,6 +25,8 @@ import ChemistScan from "./pages/chemist/ChemistScan";
 import CHVPatients from "./pages/chv/CHVPatients";
 import CHVProfile from "./pages/chv/CHVProfile";
 import CHVReports from "./pages/chv/CHVReports";
+import DispencePage from "./pages/chemist/DispencePage"
+import AddRecord from "./pages/chemist/AddRecord"
 
 export default function App() {
   return (
@@ -96,6 +98,12 @@ export default function App() {
         element={<ProtectedRoute role="chemist"><ChemistProfile/></ProtectedRoute>} />
         <Route path="/chemist-inventory"
         element={<ProtectedRoute role="chemist"><ChemistInventory/></ProtectedRoute>} />
+
+        <Route path="/chemist/patient/:shaNumber" element={<ChemistPatientPage />} />
+        <Route path="/chemist/dispense/:shaNumber" element={<DispencePage />} />
+<Route path="/chemist/add-record/:shaNumber" element={<AddRecord />} />
+
+
 
         {/* fallback */}
 <Route path="*" element={<PublicRoute><Home /></PublicRoute>} />

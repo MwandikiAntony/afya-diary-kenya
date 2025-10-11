@@ -132,23 +132,23 @@ exports.getPatientQRCode = async (req, res) => {
 
 
 // ✅ Search patient by SHA Number
+// controllers/patientController.js
 exports.searchPatient = async (req, res) => {
   try {
-    const { shaNumber } = req.params;
-    console.log("Searching for SHA:", shaNumber);
+    const { sha } = req.params;
+    console.log(`Searching for SHA: ${sha}`);
 
-    const patient = await Patient.findOne({ shaNumber }).populate("chvId", "name");
-    console.log("Search result:", patient);
-console.log("Searching for SHA:", req.params.shaNumber);
-
+    const patient = await Patient.findOne({ shaNumber: sha });
     if (!patient) {
       return res.status(404).json({ message: "Patient not found" });
     }
 
-    res.json(patient);
+    console.log("Search result:", patient);
+    res.status(200).json(patient); // ✅ force 200, not 304
   } catch (error) {
-    console.error("Search error:", error);
+    console.error("Error searching patient:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
+
 

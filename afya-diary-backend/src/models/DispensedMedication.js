@@ -1,13 +1,14 @@
 const mongoose = require('mongoose');
 
-const dispensedMedicationSchema = new mongoose.Schema({
-  patientId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+const dispensedSchema = new mongoose.Schema({
+  patientId: { type: mongoose.Schema.Types.ObjectId, ref: 'Patient', required: true },
   chemistId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  medication: { type: String, required: true },
-  dose: { type: String },          // e.g., "500mg twice daily"
-  instructions: { type: String },  // optional notes
-  dispensedAt: { type: Date, default: Date.now },
-  followUpReminder: { type: mongoose.Schema.Types.ObjectId, ref: 'Reminder' }, // optional
+  medicineId: { type: mongoose.Schema.Types.ObjectId, ref: 'Medicine', required: true },
+  medicineName: { type: String },
+  dose: { type: String },
+  instructions: { type: String },
+  quantity: { type: Number, default: 1 },
+  followUpReminder: { type: mongoose.Schema.Types.ObjectId, ref: 'Reminder' },
 }, { timestamps: true });
 
-module.exports = mongoose.model('DispensedMedication', dispensedMedicationSchema);
+module.exports = mongoose.model('DispensedMedication', dispensedSchema);
