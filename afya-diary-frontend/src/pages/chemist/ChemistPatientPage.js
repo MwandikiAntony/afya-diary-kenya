@@ -46,16 +46,22 @@ export default function ChemistPatientPage() {
 
         <div className="flex gap-3 mt-6">
           <Button
-            onClick={() => navigate("/chemist/dispense", { state: { patient } })}
-          >
-            Dispense Medicine
-          </Button>
-          <Button
-            variant="secondary"
-            onClick={() => navigate("/chemist/add-record", { state: { patient } })}
-          >
-            Add Record
-          </Button>
+  onClick={() =>
+    navigate(`/chemist/dispense/${patient.shaNumber}`, { state: { patient } })
+  }
+>
+  Dispense Medicine
+</Button>
+
+<Button
+  variant="secondary"
+  onClick={() =>
+    navigate(`/chemist/add-record/${patient.shaNumber}`, { state: { patient } })
+  }
+>
+  Add Record
+</Button>
+
         </div>
       </div>
     </ChemistLayout>

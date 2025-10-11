@@ -27,6 +27,7 @@ import CHVProfile from "./pages/chv/CHVProfile";
 import CHVReports from "./pages/chv/CHVReports";
 import DispencePage from "./pages/chemist/DispencePage"
 import AddRecord from "./pages/chemist/AddRecord"
+import AddMedicinePage from "./pages/chemist/AddMedicinePage";
 
 export default function App() {
   return (
@@ -101,7 +102,10 @@ export default function App() {
 
         <Route path="/chemist/patient/:shaNumber" element={<ChemistPatientPage />} />
         <Route path="/chemist/dispense/:shaNumber" element={<DispencePage />} />
-<Route path="/chemist/add-record/:shaNumber" element={<AddRecord />} />
+        <Route path="/chemist/add-record/:shaNumber" element={<AddRecord />} />
+        <Route path="/chemist/add-record" element={<AddRecord />} />
+        <Route path="/chemist/dispence" element={<DispencePage/>}/>
+        <Route path="/chemist/add-medicine" element={<AddMedicinePage/>} />
 
 
 

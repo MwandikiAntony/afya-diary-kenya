@@ -6,6 +6,7 @@ const Reminder = require('../models/Reminder');
 const Patient = require('../models/Patient');
 const Medicine = require('../models/Medicine'); // new model
 const Record = require('../models/Record'); // ✅ create this model if not existing
+const ChemistRecord = require("../models/ChemistRecord"); // we'll create this model below
 
 // ✅ Chemist creates a new patient manually (not QR)
 exports.createPatient = async (req, res) => {
@@ -46,78 +47,81 @@ exports.createPatient = async (req, res) => {
 };
 
 // ✅ Chemist records dispensed medication
+
+
 exports.dispenseMedication = async (req, res) => {
   try {
-    if (req.user.role !== 'chemist') {
-      return res.status(403).json({ message: 'Only chemists can dispense medications' });
+    const { shaNumber, medicineId, quantity } = req.body;
+
+    // ✅ Validate input
+    if (!shaNumber || !medicineId || !quantity) {
+      return res.status(400).json({ message: "Missing required fields" });
     }
 
-    const { patientId, medicineId, quantity, dose, instructions, followUpDays } = req.body;
-
-    if (!patientId || !medicineId || !quantity) {
-      return res.status(400).json({ message: 'patientId, medicineId, and quantity are required' });
-    }
-
-    const patient = await Patient.findById(patientId);
+    // ✅ Find patient by SHA number
+    const patient = await Patient.findOne({ shaNumber });
     if (!patient) {
-      return res.status(404).json({ message: 'Patient not found' });
+      return res.status(404).json({ message: "Patient not found" });
     }
 
+    // ✅ Find medicine
     const medicine = await Medicine.findById(medicineId);
     if (!medicine) {
-      return res.status(404).json({ message: 'Medicine not found' });
+      return res.status(404).json({ message: "Medicine not found" });
     }
 
-    // Reduce stock
+    // ✅ Check stock
     if (medicine.stock < quantity) {
-      return res.status(400).json({ message: 'Not enough stock' });
+      return res.status(400).json({
+        message: `Not enough stock. Only ${medicine.stock} left.`,
+      });
     }
-    medicine.stock -= quantity;
+
+    // ✅ Deduct stock
+    medicine.stock -= Number(quantity);
     await medicine.save();
 
-    const dispensed = await DispensedMedication.create({
-      patientId,
+    // ✅ Record the dispense event
+    const dispenseRecord = new DispensedMedication({
       chemistId: req.user._id,
-      medicineId,
-      medicineName: medicine.name,
-      dose,
-      instructions,
+      patientId: patient._id,
+      medicineId: medicine._id,
       quantity,
     });
 
-    // Optional: Create reminder
-    if (followUpDays && Number(followUpDays) > 0) {
-      const reminder = await Reminder.create({
-        patientId,
-        message: `Follow-up for ${medicine.name}`,
-        dueDate: new Date(Date.now() + followUpDays * 24 * 60 * 60 * 1000),
-        status: 'pending',
-        createdBy: req.user._id,
-      });
-      dispensed.followUpReminder = reminder._id;
-      await dispensed.save();
+    await dispenseRecord.save();
+
+    res.status(200).json({
+      message: "Medicine dispensed successfully",
+      data: dispenseRecord,
+    });
+  } catch (error) {
+    console.error("Error dispensing medication:", error);
+    res.status(500).json({ message: "Server error while dispensing" });
+  }
+};
+
+
+exports.getMedicines = async (req, res) => {
+  try {
+    // ✅ Fetch all medicines (optional: filter out zero stock)
+    const medicines = await Medicine.find({ stock: { $gt: 0 } })
+      .select("_id name stock");
+
+    if (!medicines.length) {
+      return res.status(404).json({ message: "No medicines available" });
     }
 
-    res.status(201).json({ message: 'Medication dispensed successfully', dispensed });
-  } catch (err) {
-    console.error('dispenseMedication error:', err);
-    res.status(500).json({ message: 'Server error' });
+    res.status(200).json({
+      message: "Medicines fetched successfully",
+      data: medicines,
+    });
+  } catch (error) {
+    console.error("Error fetching medicines:", error);
+    res.status(500).json({ message: "Server error fetching medicines" });
   }
 };
 
-// ✅ Get all dispensed medications for a patient
-exports.getDispensedMedications = async (req, res) => {
-  try {
-    const { patientId } = req.params;
-    const records = await DispensedMedication.find({ patientId })
-      .populate('medicineId', 'name')
-      .sort({ createdAt: -1 });
-    res.json(records);
-  } catch (err) {
-    console.error('getDispensedMedications error:', err);
-    res.status(500).json({ message: 'Server error' });
-  }
-};
 
 // ✅ Chemist adds medicine to stock
 exports.addMedicine = async (req, res) => {
@@ -205,6 +209,42 @@ exports.addPatientRecord = async (req, res) => {
   } catch (err) {
     console.error('Error adding record:', err);
     res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+
+// ✅ Add a new record for a patient (using SHA number)
+exports.addRecord = async (req, res) => {
+  try {
+    const { shaNumber, diagnosis, notes } = req.body;
+    const chemistId = req.user._id;
+
+    if (!shaNumber || !diagnosis || !notes) {
+      return res.status(400).json({ message: "All fields are required." });
+    }
+
+    // 1️⃣ Find the patient using SHA number
+    const patient = await Patient.findOne({ shaNumber });
+    if (!patient) {
+      return res.status(404).json({ message: "Patient not found." });
+    }
+
+    // 2️⃣ Create a new record
+    const record = await ChemistRecord.create({
+      patientId: patient._id,
+      chemistId,
+      diagnosis,
+      notes,
+    });
+
+    res.status(201).json({
+      message: "Record added successfully.",
+      record,
+    });
+  } catch (error) {
+    console.error("Error adding record:", error);
+    res.status(500).json({ message: "Server error while adding record." });
   }
 };
 

@@ -31,7 +31,7 @@ router.get('/dispenses', authenticate, async (req, res) => {
 });
 
 // ✅ Fetch dispensed medications for a specific patient
-router.get('/dispensed/:patientId', authenticate, chemistController.getDispensedMedications);
+router.get('/dispensed/:patientId', authenticate, chemistController.dispenseMedication);
 
 // ✅ Assign patient to CHV
 router.post('/assign-chv', authenticate, chemistController.assignPatientToCHV);
@@ -44,5 +44,7 @@ router.get('/medicines', authenticate, chemistController.getMedicines);
 
 // ✅ Add patient medical record
 router.post('/add-record', authenticate, chemistController.addPatientRecord);
+// ✅ Add medical record for patient (chemist)
+router.post('/add-record', authenticate, chemistController.addRecord);
 
 module.exports = router;

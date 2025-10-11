@@ -1,62 +1,100 @@
 import React, { useState } from "react";
-import { useParams, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import ChemistLayout from "../../components/ChemistLayout";
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+import { Textarea } from "../../components/ui/textarea"; // ✅ fixed import
 import api from "../../utils/api";
 import toast from "react-hot-toast";
-import ChemistLayout from "../../components/ChemistLayout";
 
-export default function AddRecordPage() {
-  const { shaNumber } = useParams();
+export default function AddRecord() {
   const { state } = useLocation();
-  const patient = state?.patient;
   const navigate = useNavigate();
 
-  const [diagnosis, setDiagnosis] = useState("");
-  const [treatment, setTreatment] = useState("");
+  const [form, setForm] = useState({
+    shaNumber: state?.patient?.shaNumber || "",
+    diagnosis: "",
+    notes: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!form.shaNumber || !form.diagnosis) {
+      toast.error("SHA Number and diagnosis are required.");
+      return;
+    }
+
     try {
-      await api.post("/chemist/add-record", {
-        shaNumber,
-        diagnosis,
-        treatment,
-      });
-      toast.success("Record added successfully!");
-      navigate(`/chemist/patient/${shaNumber}`);
+      setLoading(true);
+      const { data } = await api.post("/chemist/add-record", form);
+      toast.success(data.message || "Record added successfully!");
+      navigate("/chemist/dashboard");
     } catch (error) {
-      console.error(error);
-      toast.error("Failed to add record");
+      console.error("Error adding record:", error);
+      toast.error(
+        error.response?.data?.message || "Failed to add record. Try again."
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <ChemistLayout>
-      <div className="p-6 max-w-md mx-auto">
-        <h2 className="text-xl font-semibold mb-4">
-          Add Record for {patient?.name || "Patient"}
-        </h2>
+      <div className="p-6 max-w-xl mx-auto">
+        <h1 className="text-2xl font-semibold mb-4">🩺 Add Medical Record</h1>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <textarea
-            value={diagnosis}
-            onChange={(e) => setDiagnosis(e.target.value)}
-            placeholder="Diagnosis"
-            className="w-full border rounded px-3 py-2"
-            required
-          />
-          <textarea
-            value={treatment}
-            onChange={(e) => setTreatment(e.target.value)}
-            placeholder="Treatment plan"
-            className="w-full border rounded px-3 py-2"
-            required
-          />
-          <button
+          <div>
+            <label className="block text-sm font-medium mb-1">SHA Number</label>
+            <Input
+              name="shaNumber"
+              value={form.shaNumber}
+              onChange={handleChange}
+              placeholder="Enter SHA Number"
+              readOnly={!!state?.patient?.shaNumber} // ✅ prevent accidental edit
+              className={state?.patient?.shaNumber ? "bg-gray-100" : ""}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Diagnosis</label>
+            <Input
+              name="diagnosis"
+              value={form.diagnosis}
+              onChange={handleChange}
+              placeholder="Enter diagnosis"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Notes</label>
+            <Textarea
+              name="notes"
+              value={form.notes}
+              onChange={handleChange}
+              placeholder="Additional notes (optional)"
+            />
+          </div>
+
+          <Button
             type="submit"
-            className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700"
+            className="w-full"
+            disabled={loading}
           >
-            Save Record
-          </button>
+            {loading ? "Saving..." : "Save Record"}
+          </Button>
         </form>
       </div>
     </ChemistLayout>
