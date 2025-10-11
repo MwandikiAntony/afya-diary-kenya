@@ -1,81 +1,154 @@
-const Patient = require('../models/Patient');
-const User = require('../models/User');
+const Patient = require("../models/Patient");
+const QRCode = require("qrcode");
 
+/**
+ * @desc List patients
+ * If user is CHV, only show their patients.
+ */
 exports.listPatients = async (req, res) => {
   try {
-    // If CHV: return only those for this CHV; if admin, return all
     const user = req.user;
     const filter = {};
-    if (user.role === 'chv') {
+
+    if (user.role === "chv") {
       filter.chvId = user._id;
     }
+
     const patients = await Patient.find(filter).sort({ createdAt: -1 });
     return res.json(patients);
   } catch (err) {
-    console.error('listPatients', err);
-    return res.status(500).json({ message: 'Failed to list patients' });
+    console.error("listPatients", err);
+    return res.status(500).json({ message: "Failed to list patients" });
   }
 };
 
+/**
+ * @desc Create patient
+ * Generates QR code and links patient to CHV
+ */
 exports.createPatient = async (req, res) => {
   try {
     const { name, phone, age, gender, shaNumber } = req.body;
-    if (!name || !phone) return res.status(400).json({ message: 'name and phone required' });
 
-    // attach chvId when created by CHV
-    const payload = { name, phone, age, gender, shaNumber };
-    if (req.user && req.user.role === 'chv') payload.chvId = req.user._id;
+    if (!shaNumber) {
+      return res.status(400).json({ message: "SHA number is required." });
+    }
 
-    const existing = await Patient.findOne({ phone });
-    if (existing) return res.status(409).json({ message: 'Patient with this phone already exists' });
+    const existingSha = await Patient.findOne({ shaNumber });
+    if (existingSha) {
+      return res.status(400).json({ message: "SHA number already exists." });
+    }
 
-    const p = await Patient.create(payload);
-    return res.status(201).json(p);
-  } catch (err) {
-    console.error('createPatient', err);
-    return res.status(500).json({ message: 'Failed to create patient' });
+    const patient = await Patient.create({
+      name,
+      phone,
+      age,
+      gender,
+      shaNumber,
+      chvId: req.user?._id,
+    });
+
+    res.status(201).json(patient);
+  } catch (error) {
+    console.error("Error creating patient:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
+
+/**
+ * @desc Update patient
+ */
 exports.updatePatient = async (req, res) => {
   try {
     const id = req.params.id;
     const update = req.body;
 
     const patient = await Patient.findById(id);
-    if (!patient) return res.status(404).json({ message: 'Patient not found' });
+    if (!patient) return res.status(404).json({ message: "Patient not found" });
 
-    // CHV can only update their own patients
-    if (req.user.role === 'chv' && patient.chvId && patient.chvId.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: 'Forbidden' });
+    // Restrict CHV from editing other CHVs' patients
+    if (
+      req.user.role === "chv" &&
+      patient.chvId &&
+      patient.chvId.toString() !== req.user._id.toString()
+    ) {
+      return res.status(403).json({ message: "Forbidden" });
     }
 
     Object.assign(patient, update);
     await patient.save();
     return res.json(patient);
   } catch (err) {
-    console.error('updatePatient', err);
-    return res.status(500).json({ message: 'Failed to update patient' });
+    console.error("updatePatient", err);
+    return res.status(500).json({ message: "Failed to update patient" });
   }
 };
 
+/**
+ * @desc Delete patient
+ */
 exports.deletePatient = async (req, res) => {
   try {
     const id = req.params.id;
     const patient = await Patient.findById(id);
-    if (!patient) return res.status(404).json({ message: 'Patient not found' });
+    if (!patient) return res.status(404).json({ message: "Patient not found" });
 
-    // CHV can only delete their patients
-    if (req.user.role === 'chv' && patient.chvId && patient.chvId.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: 'Forbidden' });
+    if (
+      req.user.role === "chv" &&
+      patient.chvId &&
+      patient.chvId.toString() !== req.user._id.toString()
+    ) {
+      return res.status(403).json({ message: "Forbidden" });
     }
 
     await Patient.findByIdAndDelete(id);
-    return res.json({ ok: true, message: 'Deleted' });
+    return res.json({ ok: true, message: "Deleted successfully" });
   } catch (err) {
-    console.error('deletePatient', err);
-    return res.status(500).json({ message: 'Failed to delete patient' });
+    console.error("deletePatient", err);
+    return res.status(500).json({ message: "Failed to delete patient" });
   }
 };
 
+/**
+ * @desc Generate QR Code for a patient
+ */
+exports.getPatientQRCode = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const patient = await Patient.findById(id);
+    if (!patient) return res.status(404).json({ message: "Patient not found" });
+
+    const qrData = patient._id.toString();
+    const qrImage = await QRCode.toDataURL(qrData);
+
+    res.json({ qrImage });
+  } catch (err) {
+    console.error("getPatientQRCode", err);
+    res.status(500).json({ message: "Error generating QR code" });
+  }
+};
+
+
+
+// ✅ Search patient by SHA Number
+exports.searchPatient = async (req, res) => {
+  try {
+    const { shaNumber } = req.params;
+    console.log("Searching for SHA:", shaNumber);
+
+    const patient = await Patient.findOne({ shaNumber }).populate("chvId", "name");
+    console.log("Search result:", patient);
+console.log("Searching for SHA:", req.params.shaNumber);
+
+    if (!patient) {
+      return res.status(404).json({ message: "Patient not found" });
+    }
+
+    res.json(patient);
+  } catch (error) {
+    console.error("Search error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 

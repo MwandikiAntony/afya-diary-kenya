@@ -6,6 +6,43 @@ const Reminder = require('../models/Reminder');
 const Patient = require('../models/Patient');
 const User = require('../models/User');
 
+// Chemist creates a new walk-in patient
+exports.createPatient = async (req, res) => {
+  try {
+    if (req.user.role !== 'chemist') {
+      return res.status(403).json({ message: 'Only chemists can create patients' });
+    }
+
+    const { name, phone, email, gender, age } = req.body;
+
+    if (!name || !phone) {
+      return res.status(400).json({ message: 'Name and phone are required' });
+    }
+
+    // Check if phone already exists
+    const existing = await User.findOne({ phone });
+    if (existing) {
+      return res.status(400).json({ message: 'Patient with this phone already exists' });
+    }
+
+    const newPatient = await User.create({
+      name,
+      phone,
+      email: email || '',
+      gender: gender || '',
+      age: age || '',
+      role: 'patient',
+      createdBy: req.user._id,
+    });
+
+    res.status(201).json({ message: 'Walk-in patient added successfully', patient: newPatient });
+  } catch (err) {
+    console.error('createPatient error', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
 // Generate QR token for patient
 exports.generatePatientQR = async (req, res) => {
   try {

@@ -12,6 +12,7 @@ export default function ChvPatients() {
     phone: "",
     age: "",
     gender: "",
+     shaNumber: "", 
   });
 
   useEffect(() => {
@@ -102,6 +103,7 @@ export default function ChvPatients() {
                 <th className="p-3 text-left">Age</th>
                 <th className="p-3 text-left">Gender</th>
                 <th className="p-3 text-center">Actions</th>
+                <th className="p-3 text-left">SHA Number</th>
               </tr>
             </thead>
             <tbody>
@@ -112,6 +114,7 @@ export default function ChvPatients() {
                     <td className="p-3">{p.phone}</td>
                     <td className="p-3">{p.age}</td>
                     <td className="p-3 capitalize">{p.gender}</td>
+                    <td className="p-3">{p.shaNumber}</td>
                     <td className="p-3 flex justify-center gap-2">
                       <button
                         onClick={() => openModal(p)}
@@ -169,6 +172,14 @@ export default function ChvPatients() {
                   onChange={(e) => setForm({ ...form, age: e.target.value })}
                   className="p-3 border rounded-lg"
                 />
+                                <input
+                  placeholder="SHA Number"
+                  value={form.shaNumber}
+                  onChange={(e) => setForm({ ...form, shaNumber: e.target.value })}
+                  className="p-3 border rounded-lg"
+                  required
+                />
+
                 <select
                   value={form.gender}
                   onChange={(e) => setForm({ ...form, gender: e.target.value })}
