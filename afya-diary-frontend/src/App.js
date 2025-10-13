@@ -25,9 +25,10 @@ import ChemistScan from "./pages/chemist/ChemistScan";
 import CHVPatients from "./pages/chv/CHVPatients";
 import CHVProfile from "./pages/chv/CHVProfile";
 import CHVReports from "./pages/chv/CHVReports";
-import DispencePage from "./pages/chemist/DispencePage"
 import AddRecord from "./pages/chemist/AddRecord"
 import AddMedicinePage from "./pages/chemist/AddMedicinePage";
+import AddPatientPage from "./pages/chemist/AddPatientPage";
+import DispensePage from "./pages/chemist/DispensePage";
 
 export default function App() {
   return (
@@ -101,11 +102,15 @@ export default function App() {
         element={<ProtectedRoute role="chemist"><ChemistInventory/></ProtectedRoute>} />
 
         <Route path="/chemist/patient/:shaNumber" element={<ChemistPatientPage />} />
-        <Route path="/chemist/dispense/:shaNumber" element={<DispencePage />} />
+        <Route path="/chemist/dispense/:shaNumber" element={<DispensePage />} />
         <Route path="/chemist/add-record/:shaNumber" element={<AddRecord />} />
         <Route path="/chemist/add-record" element={<AddRecord />} />
-        <Route path="/chemist/dispence" element={<DispencePage/>}/>
-        <Route path="/chemist/add-medicine" element={<AddMedicinePage/>} />
+        <Route path="/chemist/dispense" element={<ProtectedRoute role="chemist"><DispensePage/></ProtectedRoute>}/>
+        <Route path="/chemist/add-medicine" element={<ProtectedRoute role="chemist"> <AddMedicinePage/></ProtectedRoute>} />
+        <Route path= "/chemist/add-patient"
+  element= {<AddPatientPage/>} />,
+
+
 
 
 

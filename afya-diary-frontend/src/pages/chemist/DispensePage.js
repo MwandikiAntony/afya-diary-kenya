@@ -11,24 +11,27 @@ export default function DispensePage() {
   const navigate = useNavigate();
 
   const patient = location.state?.patient;
-  const shaNumber = patient?.shaNumber;
+  const [shaNumber, setShaNumber] = useState(patient?.shaNumber || ""); // ✅ dynamic + editable
 
   const [medicines, setMedicines] = useState([]);
   const [form, setForm] = useState({
-    shaNumber: shaNumber || "",
     medicineId: "",
     quantity: "",
   });
   const [loading, setLoading] = useState(false);
 
-  // Fetch medicines from backend
+  // ✅ Fetch medicines
   const fetchMedicines = async (selectNewMedicineId = null) => {
     try {
-      const { data } = await api.get("/chemist/medicines");
-      const list = data.data || [];
+      const token = localStorage.getItem("token");
+      const response = await api.get(`/chemist/medicines?ts=${Date.now()}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      console.log("Medicines API response:", response.data);
+      const list = response.data || [];
       setMedicines(list);
 
-      // ✅ Auto-select newly added medicine if provided
       if (selectNewMedicineId) {
         setForm((prev) => ({ ...prev, medicineId: selectNewMedicineId }));
       }
@@ -39,38 +42,39 @@ export default function DispensePage() {
   };
 
   useEffect(() => {
-    // If coming back from Add Medicine page, select the new medicine
     const newMedicineId = location.state?.newMedicineId || null;
     fetchMedicines(newMedicineId);
 
-    // Clear refetch/newMedicineId flags to prevent loops
     if (location.state?.refetch || newMedicineId) {
-      navigate(location.pathname, {
-        replace: true,
-        state: { patient },
-      });
+      navigate(location.pathname, { replace: true, state: { patient } });
     }
   }, [navigate, patient, location.pathname, location.state]);
 
-  // Handle form input change
+  // ✅ Handle form input
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // Handle dispense submission
+  // ✅ Handle submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.shaNumber || !form.medicineId || !form.quantity) {
+
+    if (!shaNumber || !form.medicineId || !form.quantity) {
       toast.error("All fields are required");
       return;
     }
 
     try {
       setLoading(true);
-      const { data } = await api.post("/chemist/dispense", form);
+      const { data } = await api.post("/chemist/dispense", {
+        shaNumber,
+        medicineId: form.medicineId,
+        quantity: form.quantity,
+      });
+
       toast.success(data.message || "Medicine dispensed successfully!");
 
-      // Update local stock immediately
+      // ✅ Update local stock instantly
       setMedicines((prev) =>
         prev.map((m) =>
           m._id === form.medicineId
@@ -79,8 +83,8 @@ export default function DispensePage() {
         )
       );
 
-      // Reset quantity & selection
-      setForm({ ...form, medicineId: "", quantity: "" });
+      // ✅ Reset form
+      setForm({ medicineId: "", quantity: "" });
     } catch (error) {
       console.error("Error dispensing medicine:", error);
       toast.error(
@@ -91,7 +95,6 @@ export default function DispensePage() {
     }
   };
 
-  // Navigate to Add Medicine page
   const handleAddMedicine = () => {
     navigate("/chemist/add-medicine", {
       state: { fromDispense: true, patient },
@@ -103,10 +106,22 @@ export default function DispensePage() {
       <div className="p-6 max-w-md mx-auto">
         <h1 className="text-2xl font-semibold mb-4">💊 Dispense Medicine</h1>
 
-        {patient && (
+        {/* ✅ Patient Info or Manual SHA Entry */}
+        {patient ? (
           <div className="mb-4 text-gray-700">
             <p><strong>Patient:</strong> {patient.name}</p>
             <p><strong>SHA Number:</strong> {patient.shaNumber}</p>
+          </div>
+        ) : (
+          <div className="mb-4">
+            <label className="block text-sm font-medium">SHA Number</label>
+            <Input
+              name="shaNumber"
+              placeholder="Enter patient's SHA number"
+              value={shaNumber}
+              onChange={(e) => setShaNumber(e.target.value)}
+              required
+            />
           </div>
         )}
 

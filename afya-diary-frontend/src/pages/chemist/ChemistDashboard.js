@@ -17,11 +17,11 @@ import { useNavigate } from "react-router-dom"; // ⬅️ add this near top
 
 export default function ChemistDashboard() {
   const [shaNumber, setShaNumber] = useState("");
-  const [patient, setPatient] = useState(null);
+  const [patient] = useState(null);
   const [loading, setLoading] = useState(false);
   const [dispenses, setDispenses] = useState([]);
   const [medicines, setMedicines] = useState([]);
-  const [openAdd, setOpenAdd] = useState(false);
+  
   const [openDispense, setOpenDispense] = useState(false);
   const [openMedicine, setOpenMedicine] = useState(false);
   const [openRecord, setOpenRecord] = useState(false);
@@ -83,35 +83,23 @@ const handleSearch = async () => {
         <h1 className="text-2xl font-bold">Chemist Dashboard</h1>
 
         {/* Search and Add Section */}
-        <div className="flex flex-wrap items-center gap-3">
-          <Input
-            placeholder="Enter SHA Number"
-            value={shaNumber}
-            onChange={(e) => setShaNumber(e.target.value)}
-            className="w-64"
-          />
-          <Button onClick={handleSearch} disabled={loading}>
-            {loading ? "Searching..." : "Search"}
-          </Button>
+<div className="flex flex-wrap items-center gap-3">
+  <Input
+    placeholder="Enter SHA Number"
+    value={shaNumber}
+    onChange={(e) => setShaNumber(e.target.value)}
+    className="w-64"
+  />
+  <Button onClick={handleSearch} disabled={loading}>
+    {loading ? "Searching..." : "Search"}
+  </Button>
 
-          <Dialog open={openAdd} onOpenChange={setOpenAdd}>
-            <DialogTrigger asChild>
-              <Button variant="outline">Add Walk-in Patient</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add Walk-in Patient</DialogTitle>
-              </DialogHeader>
-              <AddPatientForm
-                onSuccess={(patientData) => {
-                  toast.success("Patient added successfully!");
-                  setPatient(patientData);
-                  setOpenAdd(false);
-                }}
-              />
-            </DialogContent>
-          </Dialog>
-
+  <Button
+    variant="outline"
+    onClick={() => navigate("/chemist/add-patient")}
+  >
+    ➕ Add Patient
+  </Button>
           <Dialog open={openMedicine} onOpenChange={setOpenMedicine}>
             <DialogTrigger asChild>
               <Button variant="outline">Add Medicine</Button>
@@ -255,45 +243,6 @@ const handleSearch = async () => {
 }
 
 /* ✅ Add Patient Form */
-function AddPatientForm({ onSuccess }) {
-  const [form, setForm] = useState({
-    name: "",
-    phone: "",
-    email: "",
-    gender: "",
-    age: "",
-  });
-  const [saving, setSaving] = useState(false);
-
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!form.name || !form.phone)
-      return toast.error("Name and phone are required.");
-    try {
-      setSaving(true);
-      const { data } = await api.post("/chemist/create-patient", form);
-      onSuccess(data.patient);
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Error adding patient.");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-      <Input placeholder="Full Name" name="name" value={form.name} onChange={handleChange} required />
-      <Input placeholder="Phone Number" name="phone" value={form.phone} onChange={handleChange} required />
-      <Input placeholder="Email (optional)" name="email" value={form.email} onChange={handleChange} />
-      <Input placeholder="Gender (optional)" name="gender" value={form.gender} onChange={handleChange} />
-      <Input placeholder="Age (optional)" name="age" value={form.age} onChange={handleChange} />
-      <Button type="submit" disabled={saving}>{saving ? "Saving..." : "Add Patient"}</Button>
-    </form>
-  );
-}
 
 /* ✅ Add Medicine Form */
 function AddMedicineForm({ onSuccess }) {

@@ -48,6 +48,17 @@ app.get('/api/patients/assigned', (req, res) => {
 app.get('/api/reports', (req, res) => {
   // logic to return reports
 });
+app.get("/api/chemist/medicines", (req, res) => {
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+  res.setHeader("Pragma", "no-cache");
+  res.setHeader("Expires", "0");
+
+  // Then fetch and send your data
+  Medicine.find().then((medicines) => {
+    res.status(200).json({ data: medicines });
+  });
+});
+
 
 // Health check
 app.get("/", (req, res) => {

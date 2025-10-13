@@ -13,20 +13,21 @@ export default function AddMedicine() {
   const [form, setForm] = useState({
     name: "",
     stock: "",
+    price: "",
   });
   const [loading, setLoading] = useState(false);
 
-  // Handle input change
+  // ✅ Handle input change
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // Handle add medicine submission
+  // ✅ Handle add medicine submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!form.name || !form.stock) {
-      toast.error("Medicine name and stock are required.");
+    if (!form.name || !form.stock || !form.price) {
+      toast.error("Medicine name, stock, and price are required.");
       return;
     }
 
@@ -35,20 +36,21 @@ export default function AddMedicine() {
       const { data } = await api.post("/chemist/add-medicine", {
         name: form.name,
         stock: Number(form.stock),
+        price: Number(form.price),
       });
 
       toast.success(data.message || "Medicine added successfully!");
-      setForm({ name: "", stock: "" });
+      setForm({ name: "", stock: "", price: "" });
 
-      // ✅ If came from Dispense page, navigate back and trigger refetch
+      // ✅ If came from Dispense page, go back and refetch
       if (location.state?.fromDispense) {
         navigate("/chemist/dispense", {
           state: { patient: location.state.patient, refetch: true },
           replace: true,
         });
       } else {
-        // Otherwise go to dashboard
-        navigate("/chemist/dashboard");
+        // ✅ Otherwise go to inventory
+        navigate("/chemist-inventory");
       }
     } catch (error) {
       console.error("Error adding medicine:", error);
@@ -86,6 +88,18 @@ export default function AddMedicine() {
               value={form.stock}
               onChange={handleChange}
               placeholder="Enter quantity in stock"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium">Price (KSh)</label>
+            <Input
+              type="number"
+              name="price"
+              value={form.price}
+              onChange={handleChange}
+              placeholder="Enter price per unit"
               required
             />
           </div>
