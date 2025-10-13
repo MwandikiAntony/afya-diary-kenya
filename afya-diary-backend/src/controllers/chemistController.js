@@ -7,6 +7,9 @@ const Patient = require('../models/Patient');
 const Medicine = require('../models/Medicine'); // new model
 const Record = require('../models/Record'); // ✅ create this model if not existing
 const ChemistRecord = require("../models/ChemistRecord"); // we'll create this model below
+const Chemist = require('../models/Chemist');
+const User = require('../models/User');
+
 
 // ✅ Chemist creates a new patient manually (not QR)
 exports.createPatient = async (req, res) => {
@@ -247,4 +250,25 @@ exports.addRecord = async (req, res) => {
     res.status(500).json({ message: "Server error while adding record." });
   }
 };
+
+
+
+exports.getChemistProfile = async (req, res) => {
+  try {
+    // ✅ Find the logged-in user AND ensure role is 'chemist'
+    const chemist = await User.findOne({ _id: req.user.userId, role: 'chemist' }).select('-passwordHash');
+
+    if (!chemist) {
+      return res.status(404).json({ message: 'No chemist data found' });
+    }
+
+    res.json(chemist);
+  } catch (err) {
+    console.error('Error fetching chemist profile:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+
 

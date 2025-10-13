@@ -23,7 +23,9 @@ const authMiddleware = async (req, res, next) => {
     const user = await User.findById(payload.userId).select('-passwordHash');
     if (!user) return res.status(401).json({ message: 'User not found' });
 
-    req.user = user;
+    // ✅ Use payload, not decoded
+    req.user = { userId: payload.userId };
+
     next();
   } catch (err) {
     console.error('authMiddleware error', err);
@@ -31,5 +33,4 @@ const authMiddleware = async (req, res, next) => {
   }
 };
 
-// ✅ Export the function directly
 module.exports = authMiddleware;
