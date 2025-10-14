@@ -8,6 +8,7 @@ export default function Verify() {
   const navigate = useNavigate();
   const phone = location.state?.phone || "";
   const role = location.state?.role || "patient";
+  const state = location.state || {}; // ✅ define state
 
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,7 +27,14 @@ export default function Verify() {
     e.preventDefault();
     setLoading(true);
     try {
-      const { data } = await api.post("/auth/verify-otp", { phone, code: otp, role });
+      const { data } = await api.post("/auth/verify-otp", { 
+  phone, 
+  code: otp, 
+  role,
+  name: state?.name,       // ✅ include name
+  shaNumber: state?.shaNumber // ✅ include shaNumber if patient
+});
+
 
       if (data?.token && data?.user) {
         localStorage.setItem("token", data.token);

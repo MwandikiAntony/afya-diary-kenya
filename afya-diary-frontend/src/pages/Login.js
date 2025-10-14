@@ -1,25 +1,25 @@
-// src/pages/Login.js
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import api from "../utils/api";
 import toast from "react-hot-toast";
 
 export default function Login() {
-  const [phone, setPhone] = useState("");
-  const [role, setRole] = useState("patient"); // ✅ Added role state
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Preselect role if passed from Register
+  const initialRole = location.state?.role || "patient";
+
+  const [phone, setPhone] = useState("");
+  const [role, setRole] = useState(initialRole);
+  const [loading, setLoading] = useState(false);
 
   const sendOtp = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      // ✅ Send phone + role
       await api.post("/auth/request-otp", { phone, role });
-
       toast.success("✅ OTP sent to your phone");
-
-      // ✅ Also pass role to verify page if needed
       navigate("/verify", { state: { phone, role } });
     } catch (err) {
       console.error("sendOtp error", err);
@@ -47,7 +47,7 @@ export default function Login() {
             className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
 
-          {/* ✅ Role Selector */}
+          {/* Role Selector */}
           <select
             value={role}
             onChange={(e) => setRole(e.target.value)}
@@ -69,7 +69,18 @@ export default function Login() {
           </button>
         </form>
 
+        {/* Redirect to Register */}
         <p className="text-sm text-gray-500 mt-6 text-center">
+          Don't have an account?{" "}
+          <button
+            onClick={() => navigate("/register", { state: { role } })}
+            className="text-green-600 hover:underline"
+          >
+            Sign Up
+          </button>
+        </p>
+
+        <p className="text-sm text-gray-500 mt-2 text-center">
           By logging in, you agree to our{" "}
           <a href="/terms" className="text-blue-600 hover:underline">Terms</a> &{" "}
           <a href="/privacy" className="text-blue-600 hover:underline">Privacy Policy</a>.

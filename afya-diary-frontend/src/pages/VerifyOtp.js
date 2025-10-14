@@ -11,25 +11,36 @@ export default function VerifyOTP() {
   const { state } = useLocation();
   const phone = state?.phone;
 
-  const verifyOtp = async (e) => {
+    const verifyOtp = async (e) => {
   e.preventDefault();
   setLoading(true);
   try {
-    const role = state?.role; // ✅ include role
-    const { data } = await api.post("/auth/verify-otp", { phone, otp, role });
+    const role = state?.role;
+    const { data } = await api.post("/auth/verify-otp", {
+  phone,
+  code: otp,
+  role,
+  name: state.name,      // <-- pass name
+  shaNumber: state.shaNumber,
+  email: state.email,
+  password: state.password,
+  dob: state.dob,
+  gender: state.gender
+});
+
+
 
     localStorage.setItem("token", data.token);
     localStorage.setItem("user", JSON.stringify(data.user));
     toast.success("Login successful");
 
-    // redirect by role
     if (data.user.role === "patient") navigate("/dashboard");
     else if (data.user.role === "chv") navigate("/chv-dashboard");
     else if (data.user.role === "chemist") navigate("/chemist-dashboard");
     else navigate("/dashboard");
   } catch (err) {
-    console.error(err);
-    toast.error("Invalid OTP");
+    console.error("verifyOtp error:", err);
+    toast.error(err.response?.data?.message || "Invalid OTP");
   } finally {
     setLoading(false);
   }

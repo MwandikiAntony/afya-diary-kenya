@@ -1,21 +1,23 @@
+// controllers/authController.js
 const OTP = require('../models/OTP');
 const User = require('../models/User');
 const smsService = require('../services/smsService');
 const jwt = require('jsonwebtoken');
-const db = require('../config/db'); // <-- make sure this exists
-const sendOtp = require('../utils/sendOtp'); 
 
 const OTP_TTL_MIN = parseInt(process.env.OTP_TTL_MIN || '5', 10); // minutes
 const OTP_MAX_ATTEMPTS = 5;
 
+// Generate 6-digit OTP
 function generateCode() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
+// Sign JWT
 function signJwt(payload, expires = '30d') {
   return jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: expires });
 }
 
+// Redirect based on role
 function getRedirectByRole(role) {
   switch (role) {
     case 'admin': return '/admin/dashboard';
@@ -25,100 +27,105 @@ function getRedirectByRole(role) {
   }
 }
 
+// Request OTP
 exports.requestOtp = async (req, res) => {
   try {
-    const { phone, role = 'patient' } = req.body; // get role, default to 'patient'
-    if (!phone) return res.status(400).json({ message: 'phone is required' });
+    const { phone, role = 'patient' } = req.body;
+    if (!phone) return res.status(400).json({ message: 'Phone is required' });
 
-    // generate OTP code
     const code = generateCode();
 
-    // create OTP with role included
     await OTP.create({
       phone,
       code,
-      expiresAt: new Date(Date.now() + OTP_TTL_MIN * 60 * 1000), // expires in OTP_TTL_MIN minutes
+      expiresAt: new Date(Date.now() + OTP_TTL_MIN * 60 * 1000),
       used: false,
       attempts: 0,
-      role, // save role here
+      role,
     });
 
-    // send SMS (best-effort)
     const smsText = `AfyaDiary OTP: ${code}. Expires in ${OTP_TTL_MIN} minutes.`;
     try {
       await smsService.sendSMS(phone, smsText);
-    } catch (smsErr) {
-      console.error('SMS send failed', smsErr);
+    } catch (err) {
+      console.error('SMS send failed', err);
     }
 
     return res.json({ ok: true, message: 'OTP sent if phone is valid' });
   } catch (err) {
     console.error('requestOtp error', err);
-    return res.status(500).json({ message: 'server error' });
+    return res.status(500).json({ message: 'Server error' });
   }
 };
 
-
+// Verify OTP and create/update user
 exports.verifyOtp = async (req, res) => {
   try {
-    const { phone, code, name, shaNumber, role } = req.body;  // <-- get role from client
+    const { phone, code, name, shaNumber, role, email, password, licenseNumber, pharmacyName, dob, gender } = req.body;
 
-    if (!phone || !code) return res.status(400).json({ message: 'phone and code required' });
+    if (!phone || !code) return res.status(400).json({ message: 'Phone and code required' });
 
-    // find latest unused OTP for phone
     const otp = await OTP.findOne({ phone, used: false }).sort({ createdAt: -1 });
     if (!otp) return res.status(400).json({ message: 'Invalid or expired code' });
 
-    if (otp.expiresAt < new Date()) {
-      return res.status(400).json({ message: 'OTP expired' });
-    }
-
-    if (otp.attempts >= OTP_MAX_ATTEMPTS) {
-      return res.status(429).json({ message: 'Too many attempts' });
-    }
-
+    if (otp.expiresAt < new Date()) return res.status(400).json({ message: 'OTP expired' });
+    if (otp.attempts >= OTP_MAX_ATTEMPTS) return res.status(429).json({ message: 'Too many attempts' });
     if (otp.code !== code) {
       otp.attempts = (otp.attempts || 0) + 1;
       await otp.save();
       return res.status(400).json({ message: 'Invalid code' });
     }
 
-    // mark OTP as used
     otp.used = true;
     await otp.save();
 
-    // find or create user
     let user = await User.findOne({ phone });
+
     if (!user) {
-      user = await User.create({ phone, name, shaNumber, role: role || 'patient' });
+      // Create new user
+      user = new User({
+        phone,
+        name,
+        shaNumber,
+        role: role || 'patient',
+        email: email || undefined,
+        dob: dob || undefined,
+        gender: gender || 'other',
+        licenseNumber: licenseNumber || undefined,
+        pharmacyName: pharmacyName || undefined
+      });
+
+      if (password) {
+        await user.setPassword(password);
+      }
+
+      await user.save();
     } else {
-      // update shaNumber if provided and not set
-      if (shaNumber && !user.shaNumber) {
-        user.shaNumber = shaNumber;
-      }
-      // update role if provided and different (optional)
-      if (role && user.role !== role) {
-        user.role = role;
-      }
+      // Update existing user if new data provided
+      if (shaNumber && !user.shaNumber) user.shaNumber = shaNumber;
+      if (role && user.role !== role) user.role = role;
+      if (email && !user.email) user.email = email;
+      if (password && !user.passwordHash) await user.setPassword(password);
+      if (licenseNumber && !user.licenseNumber) user.licenseNumber = licenseNumber;
+      if (pharmacyName && !user.pharmacyName) user.pharmacyName = pharmacyName;
+      if (dob && !user.dob) user.dob = dob;
+      if (gender && !user.gender) user.gender = gender;
+      if (name && !user.name) user.name = name;
+
       await user.save();
     }
 
-    // sign JWT with userId and role
     const token = signJwt({ userId: user._id, role: user.role }, '30d');
-
-    // determine redirect URL based on role
     const redirectTo = getRedirectByRole(user.role);
 
     return res.json({ token, user, redirectTo });
   } catch (err) {
     console.error('verifyOtp error', err);
-    return res.status(500).json({ message: 'server error' });
+    return res.status(500).json({ message: 'Server error' });
   }
 };
 
-
-
-// optional: allow patient to set a PIN for quick local auth (not required)
+// Optional: Set PIN for CHV / Chemist
 exports.setPin = async (req, res) => {
   try {
     const { pin } = req.body;
@@ -130,15 +137,15 @@ exports.setPin = async (req, res) => {
     return res.json({ ok: true, message: 'PIN saved' });
   } catch (err) {
     console.error('setPin error', err);
-    return res.status(500).json({ message: 'server error' });
+    return res.status(500).json({ message: 'Server error' });
   }
 };
 
-// optional: login with PIN
+// Login with PIN
 exports.loginWithPin = async (req, res) => {
   try {
     const { phone, pin } = req.body;
-    if (!phone || !pin) return res.status(400).json({ message: 'phone and pin required' });
+    if (!phone || !pin) return res.status(400).json({ message: 'Phone and PIN required' });
 
     const user = await User.findOne({ phone });
     if (!user) return res.status(400).json({ message: 'Invalid credentials' });
@@ -150,39 +157,43 @@ exports.loginWithPin = async (req, res) => {
     return res.json({ token, user });
   } catch (err) {
     console.error('loginWithPin error', err);
-    return res.status(500).json({ message: 'server error' });
+    return res.status(500).json({ message: 'Server error' });
   }
 };
 
-//resend OTP
-
+// Resend OTP
 exports.resendOtp = async (req, res) => {
   try {
-    const { phone, role } = req.body;
+    const { phone, role = 'patient' } = req.body;
 
     if (!phone) {
       return res.status(400).json({ message: "Phone number is required" });
     }
 
-    // generate a new 6-digit code
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    // generate a new OTP
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // store/update OTP in DB
-    await db.query(
-      "UPDATE users SET otp = $1, otp_expires_at = NOW() + INTERVAL '10 minutes' WHERE phone = $2",
-      [otp, phone]
-    );
+    // save OTP in DB
+    await OTP.create({
+      phone,
+      code,
+      expiresAt: new Date(Date.now() + OTP_TTL_MIN * 60 * 1000),
+      used: false,
+      attempts: 0,
+      role, // role sent from frontend
+    });
 
     // send OTP via SMS
-    await sendOtp(phone, otp);
+    try {
+      await smsService.sendSMS(phone, `AfyaDiary OTP: ${code}. Expires in ${OTP_TTL_MIN} minutes.`);
+    } catch (smsErr) {
+      console.error("SMS send failed", smsErr);
+    }
 
     return res.status(200).json({ message: "OTP resent successfully" });
   } catch (err) {
     console.error("resendOtp error:", err);
-    return res.status(500).json({ message: "Failed to resend OTP" });
+    return res.status(500).json({ message: "Failed to resend OTP", error: err.message });
   }
 };
-
-
-
 
