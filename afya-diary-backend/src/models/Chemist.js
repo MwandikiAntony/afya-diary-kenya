@@ -1,13 +1,13 @@
 const mongoose = require('mongoose');
 
+
 const chemistSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, unique: true, required: true },
-  phone: { type: String, required: true },
-  password: { type: String, required: true },
-  licenseNumber: { type: String },
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  licenseNumber: { type: String, unique: true, sparse: true }, // ✅ add sparse
   pharmacyName: { type: String },
-  role: { type: String, default: 'chemist' },
+  email: { type: String },
+  phone: { type: String },
 }, { timestamps: true });
+
 
 module.exports = mongoose.model('Chemist', chemistSchema);

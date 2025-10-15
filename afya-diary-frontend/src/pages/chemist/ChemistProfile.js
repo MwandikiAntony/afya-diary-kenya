@@ -66,7 +66,7 @@ export default function ChemistProfile() {
           <strong>License Number:</strong> {chemist.licenseNumber || "N/A"}
         </p>
         <p>
-          <strong>Facility Name:</strong> {chemist.facilityName || "N/A"}
+          <strong>Facility Name:</strong> {chemist.pharmacyName || "N/A"}
         </p>
         <p>
           <strong>Location:</strong> {chemist.location || "N/A"}

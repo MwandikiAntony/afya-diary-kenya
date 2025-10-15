@@ -24,38 +24,41 @@ export default function Verify() {
   }, [timer]);
 
   const verifyOtp = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const { data } = await api.post("/auth/verify-otp", { 
+  e.preventDefault();
+  setLoading(true);
+  try {
+    const { data } = await api.post("/auth/verify-otp", { 
   phone, 
   code: otp, 
   role,
-  name: state?.name,       // ✅ include name
-  shaNumber: state?.shaNumber // ✅ include shaNumber if patient
+  name: state?.name,
+  shaNumber: state?.shaNumber, 
+  licenseNumber: state?.licenseNumber,
+  pharmacyName: state?.pharmacyName,
+  email: state?.email, // ✅ FIXED — include email
 });
 
 
-      if (data?.token && data?.user) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
-        toast.success("✅ Login successful");
+    if (data?.token && data?.user) {
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      toast.success("✅ Login successful");
 
-        // Redirect by role
-        if (data.user.role === "patient") navigate("/dashboard");
-        else if (data.user.role === "chv") navigate("/chv-dashboard");
-        else if (data.user.role === "chemist") navigate("/chemist-dashboard");
-        else navigate("/dashboard");
-      } else {
-        toast.error("Unexpected server response");
-      }
-    } catch (err) {
-      console.error("verifyOtp error", err);
-      toast.error(err.response?.data?.message || "Invalid OTP");
-    } finally {
-      setLoading(false);
+      // Redirect by role
+      if (data.user.role === "patient") navigate("/dashboard");
+      else if (data.user.role === "chv") navigate("/chv-dashboard");
+      else if (data.user.role === "chemist") navigate("/chemist-dashboard");
+      else navigate("/dashboard");
+    } else {
+      toast.error("Unexpected server response");
     }
-  };
+  } catch (err) {
+    console.error("verifyOtp error", err);
+    toast.error(err.response?.data?.message || "Invalid OTP");
+  } finally {
+    setLoading(false);
+  }
+};
 
   // Resend OTP handler
   const resendOtp = async () => {

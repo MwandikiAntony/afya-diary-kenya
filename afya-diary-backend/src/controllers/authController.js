@@ -3,6 +3,9 @@ const OTP = require('../models/OTP');
 const User = require('../models/User');
 const smsService = require('../services/smsService');
 const jwt = require('jsonwebtoken');
+const Patient = require('../models/Patient');
+const Chemist = require('../models/Chemist');
+const Chv = require('../models/CHV');
 
 const OTP_TTL_MIN = parseInt(process.env.OTP_TTL_MIN || '5', 10); // minutes
 const OTP_MAX_ATTEMPTS = 5;
@@ -61,15 +64,30 @@ exports.requestOtp = async (req, res) => {
 // Verify OTP and create/update user
 exports.verifyOtp = async (req, res) => {
   try {
-    const { phone, code, name, shaNumber, role, email, password, licenseNumber, pharmacyName, dob, gender } = req.body;
+    const {
+      phone,
+      code,
+      name,
+      shaNumber,
+      role,
+      email,
+      password,
+      licenseNumber,
+      pharmacyName,
+      dob,
+      gender,
+    } = req.body;
 
-    if (!phone || !code) return res.status(400).json({ message: 'Phone and code required' });
+    if (!phone || !code)
+      return res.status(400).json({ message: 'Phone and code required' });
 
     const otp = await OTP.findOne({ phone, used: false }).sort({ createdAt: -1 });
     if (!otp) return res.status(400).json({ message: 'Invalid or expired code' });
 
     if (otp.expiresAt < new Date()) return res.status(400).json({ message: 'OTP expired' });
-    if (otp.attempts >= OTP_MAX_ATTEMPTS) return res.status(429).json({ message: 'Too many attempts' });
+    if (otp.attempts >= OTP_MAX_ATTEMPTS)
+      return res.status(429).json({ message: 'Too many attempts' });
+
     if (otp.code !== code) {
       otp.attempts = (otp.attempts || 0) + 1;
       await otp.save();
@@ -79,29 +97,33 @@ exports.verifyOtp = async (req, res) => {
     otp.used = true;
     await otp.save();
 
+    // ✅ First, find or create user
     let user = await User.findOne({ phone });
 
     if (!user) {
-      // Create new user
-      user = new User({
-        phone,
-        name,
-        shaNumber,
-        role: role || 'patient',
-        email: email || undefined,
-        dob: dob || undefined,
-        gender: gender || 'other',
-        licenseNumber: licenseNumber || undefined,
-        pharmacyName: pharmacyName || undefined
-      });
+  // Create new user safely
+  user = new User({
+    phone,
+    name,
+    role: role || 'patient',
+    email: email || undefined,
+    dob: dob || undefined,
+    gender: gender || 'other',
+    ...(shaNumber ? { shaNumber } : {}),      // ✅ only include if not empty
+    ...(licenseNumber ? { licenseNumber } : {}), // ✅ only include if present
+    ...(pharmacyName ? { pharmacyName } : {}),   // ✅ same
+  });
 
-      if (password) {
-        await user.setPassword(password);
-      }
+  if (password) {
+    await user.setPassword(password);
+  }
+
+  
+
 
       await user.save();
     } else {
-      // Update existing user if new data provided
+      // Update user
       if (shaNumber && !user.shaNumber) user.shaNumber = shaNumber;
       if (role && user.role !== role) user.role = role;
       if (email && !user.email) user.email = email;
@@ -115,15 +137,62 @@ exports.verifyOtp = async (req, res) => {
       await user.save();
     }
 
+    // ✅ Now we can safely create role-specific records
+    if (user.role === 'patient') {
+      const exists = await Patient.findOne({ userId: user._id });
+      if (!exists) {
+        await Patient.create({
+          userId: user._id,
+          shaNumber,
+          dob,
+          gender,
+        });
+      }
+    }
+
+    if (user.role === 'chemist') {
+  const exists = await Chemist.findOne({ userId: user._id });
+  if (!exists) {
+    if (!licenseNumber) {
+      console.error("❌ Missing licenseNumber for chemist:", req.body);
+      return res.status(400).json({
+        message: "License number is required for chemists.",
+      });
+    }
+
+    await Chemist.create({
+      userId: user._id,
+      phone,
+      licenseNumber,
+      pharmacyName,
+      email,
+    });
+  }
+}
+
+
+    if (user.role === 'chv') {
+      const exists = await Chv.findOne({ userId: user._id });
+      if (!exists) {
+        await Chv.create({
+          userId: user._id,
+          email,
+        });
+      }
+    }
+
     const token = signJwt({ userId: user._id, role: user.role }, '30d');
     const redirectTo = getRedirectByRole(user.role);
 
     return res.json({ token, user, redirectTo });
   } catch (err) {
-    console.error('verifyOtp error', err);
+    console.error('verifyOtp error:', err.message, err.stack);
+
     return res.status(500).json({ message: 'Server error' });
   }
 };
+
+
 
 // Optional: Set PIN for CHV / Chemist
 exports.setPin = async (req, res) => {
@@ -134,6 +203,7 @@ exports.setPin = async (req, res) => {
 
     await user.setPassword(pin);
     await user.save();
+    // After user.save()
     return res.json({ ok: true, message: 'PIN saved' });
   } catch (err) {
     console.error('setPin error', err);

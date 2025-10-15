@@ -20,13 +20,16 @@ export default function VerifyOTP() {
   phone,
   code: otp,
   role,
-  name: state.name,      // <-- pass name
+  name: state.name,
   shaNumber: state.shaNumber,
   email: state.email,
   password: state.password,
   dob: state.dob,
-  gender: state.gender
+  gender: state.gender,
+  licenseNumber: state.licenseNumber,   // ✅ add this
+  pharmacyName: state.pharmacyName,     // ✅ add this
 });
+
 
 
 
