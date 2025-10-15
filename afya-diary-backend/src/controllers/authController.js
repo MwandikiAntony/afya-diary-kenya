@@ -139,16 +139,19 @@ exports.verifyOtp = async (req, res) => {
 
     // ✅ Now we can safely create role-specific records
     if (user.role === 'patient') {
-      const exists = await Patient.findOne({ userId: user._id });
-      if (!exists) {
-        await Patient.create({
-          userId: user._id,
-          shaNumber,
-          dob,
-          gender,
-        });
-      }
-    }
+  const exists = await Patient.findOne({ userId: user._id });
+  if (!exists) {
+    await Patient.create({
+      userId: user._id,
+      phone: user.phone, // ✅ added
+      name: user.name,   // ✅ added
+      shaNumber: shaNumber || user.shaNumber,
+      dob: dob || user.dob,
+      gender: gender || user.gender,
+    });
+  }
+}
+
 
     if (user.role === 'chemist') {
   const exists = await Chemist.findOne({ userId: user._id });
@@ -172,14 +175,19 @@ exports.verifyOtp = async (req, res) => {
 
 
     if (user.role === 'chv') {
-      const exists = await Chv.findOne({ userId: user._id });
-      if (!exists) {
-        await Chv.create({
-          userId: user._id,
-          email,
-        });
-      }
-    }
+  const exists = await Chv.findOne({ userId: user._id });
+  if (!exists) {
+    await Chv.create({
+      userId: user._id,
+      name: user.name,
+      phone: user.phone,
+      shaNumber: user.shaNumber,
+      password: user.passwordHash || password, // optional, depends on schema
+      email: user.email || email,
+    });
+  }
+}
+
 
     const token = signJwt({ userId: user._id, role: user.role }, '30d');
     const redirectTo = getRedirectByRole(user.role);

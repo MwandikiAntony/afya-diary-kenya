@@ -34,6 +34,7 @@ export default function Register() {
     if (role === "chv" || role === "chemist") {
       data.email = email;
       data.password = password;
+      data.shaNumber = shaNumber;
     }
 
     if (role === "chemist") {
@@ -148,8 +149,20 @@ export default function Register() {
                 required
                 className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
               />
+
             </>
           )}
+          {role === "chv" && (
+            <>
+            <input
+                type="text"
+                placeholder="SHA Number"
+                value={shaNumber}
+                onChange={(e) => setShaNumber(e.target.value)}
+                required
+                className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none"
+              />
+            </>)}
 
           {role === "chemist" && (
             <>

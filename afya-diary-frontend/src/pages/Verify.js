@@ -9,6 +9,7 @@ export default function Verify() {
   const phone = location.state?.phone || "";
   const role = location.state?.role || "patient";
   const state = location.state || {}; // ✅ define state
+  const password = state?.password;
 
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
@@ -31,6 +32,7 @@ export default function Verify() {
   phone, 
   code: otp, 
   role,
+  password,
   name: state?.name,
   shaNumber: state?.shaNumber, 
   licenseNumber: state?.licenseNumber,
