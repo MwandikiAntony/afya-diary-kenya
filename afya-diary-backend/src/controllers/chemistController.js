@@ -269,6 +269,28 @@ exports.getChemistProfile = async (req, res) => {
   }
 };
 
+exports.updateChemistProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { location } = req.body;
+
+    const chemist = await Chemist.findOneAndUpdate(
+      { userId },
+      { location },
+      { new: true }
+    ).populate("userId", "name phone email role");
+
+    if (!chemist)
+      return res.status(404).json({ message: "Chemist not found" });
+
+    res.json(chemist);
+  } catch (error) {
+    console.error("Error updating chemist profile:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
 
 
 

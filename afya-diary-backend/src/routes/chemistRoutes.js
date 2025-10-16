@@ -46,6 +46,7 @@ router.post('/add-record', authMiddleware, chemistController.addPatientRecord);
 
 // ✅ Chemist profile (fixes your 404)
 router.get('/profile', authMiddleware, chemistController.getChemistProfile);
+router.patch("/profile", authMiddleware, chemistController.updateChemistProfile);
 
 
 module.exports = router;

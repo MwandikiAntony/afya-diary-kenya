@@ -133,6 +133,15 @@ export default function Verify() {
               {resending ? "Resending..." : "Resend OTP"}
             </button>
           )}
+          <p className="text-sm text-gray-500 mt-6 text-center">
+          Go Back to{" "}
+          <button
+            onClick={() => navigate("/login", { state: { role } })}
+            className="text-green-600 hover:underline"
+          >
+            Sign In
+          </button>
+        </p>
         </div>
       </div>
     </div>

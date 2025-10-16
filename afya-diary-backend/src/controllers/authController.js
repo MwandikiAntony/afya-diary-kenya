@@ -79,19 +79,21 @@ exports.verifyOtp = async (req, res) => {
     } = req.body;
 
     if (!phone || !code)
-      return res.status(400).json({ message: 'Phone and code required' });
+      return res.status(400).json({ message: "Phone and code required" });
 
     const otp = await OTP.findOne({ phone, used: false }).sort({ createdAt: -1 });
-    if (!otp) return res.status(400).json({ message: 'Invalid or expired code' });
+    if (!otp) return res.status(400).json({ message: "Invalid or expired code" });
 
-    if (otp.expiresAt < new Date()) return res.status(400).json({ message: 'OTP expired' });
+    if (otp.expiresAt < new Date())
+      return res.status(400).json({ message: "OTP expired" });
+
     if (otp.attempts >= OTP_MAX_ATTEMPTS)
-      return res.status(429).json({ message: 'Too many attempts' });
+      return res.status(429).json({ message: "Too many attempts" });
 
     if (otp.code !== code) {
       otp.attempts = (otp.attempts || 0) + 1;
       await otp.save();
-      return res.status(400).json({ message: 'Invalid code' });
+      return res.status(400).json({ message: "Invalid code" });
     }
 
     otp.used = true;
@@ -101,31 +103,34 @@ exports.verifyOtp = async (req, res) => {
     let user = await User.findOne({ phone });
 
     if (!user) {
-  // Create new user safely
-  user = new User({
-    phone,
-    name,
-    role: role || 'patient',
-    email: email || undefined,
-    dob: dob || undefined,
-    gender: gender || 'other',
-    ...(shaNumber ? { shaNumber } : {}),      // ✅ only include if not empty
-    ...(licenseNumber ? { licenseNumber } : {}), // ✅ only include if present
-    ...(pharmacyName ? { pharmacyName } : {}),   // ✅ same
-  });
+      // Create new user safely
+      user = new User({
+        phone,
+        name,
+        role: role || "patient",
+        email: email || undefined,
+        dob: dob || undefined,
+        gender: gender || "other",
+        ...(shaNumber ? { shaNumber } : {}),
+        ...(licenseNumber ? { licenseNumber } : {}),
+        ...(pharmacyName ? { pharmacyName } : {}),
+      });
 
-  if (password) {
-    await user.setPassword(password);
-  }
-
-  
-
+      if (password) {
+        await user.setPassword(password);
+      }
 
       await user.save();
     } else {
-      // Update user
+      // ✅ NEW: Role consistency check
+      if (role && user.role !== role) {
+        return res.status(403).json({
+          message: `Access denied. You are registered as a ${user.role}. Please log in using the correct role.`,
+        });
+      }
+
+      // Update user only if needed
       if (shaNumber && !user.shaNumber) user.shaNumber = shaNumber;
-      if (role && user.role !== role) user.role = role;
       if (email && !user.email) user.email = email;
       if (password && !user.passwordHash) await user.setPassword(password);
       if (licenseNumber && !user.licenseNumber) user.licenseNumber = licenseNumber;
@@ -137,68 +142,65 @@ exports.verifyOtp = async (req, res) => {
       await user.save();
     }
 
-    // ✅ Now we can safely create role-specific records
-    if (user.role === 'patient') {
-  const exists = await Patient.findOne({ userId: user._id });
-  if (!exists) {
-    await Patient.create({
-      userId: user._id,
-      phone: user.phone, // ✅ added
-      name: user.name,   // ✅ added
-      shaNumber: shaNumber || user.shaNumber,
-      dob: dob || user.dob,
-      gender: gender || user.gender,
-    });
-  }
-}
-
-
-    if (user.role === 'chemist') {
-  const exists = await Chemist.findOne({ userId: user._id });
-  if (!exists) {
-    if (!licenseNumber) {
-      console.error("❌ Missing licenseNumber for chemist:", req.body);
-      return res.status(400).json({
-        message: "License number is required for chemists.",
-      });
+    // ✅ Create role-specific records safely
+    if (user.role === "patient") {
+      const exists = await Patient.findOne({ userId: user._id });
+      if (!exists) {
+        await Patient.create({
+          userId: user._id,
+          phone: user.phone,
+          name: user.name,
+          shaNumber: shaNumber || user.shaNumber,
+          dob: dob || user.dob,
+          gender: gender || user.gender,
+        });
+      }
     }
 
-    await Chemist.create({
-      userId: user._id,
-      phone,
-      licenseNumber,
-      pharmacyName,
-      email,
-    });
-  }
-}
+    if (user.role === "chemist") {
+      const exists = await Chemist.findOne({ userId: user._id });
+      if (!exists) {
+        if (!licenseNumber) {
+          console.error("❌ Missing licenseNumber for chemist:", req.body);
+          return res.status(400).json({
+            message: "License number is required for chemists.",
+          });
+        }
 
+        await Chemist.create({
+          userId: user._id,
+          phone,
+          licenseNumber,
+          pharmacyName,
+          email,
+        });
+      }
+    }
 
-    if (user.role === 'chv') {
-  const exists = await Chv.findOne({ userId: user._id });
-  if (!exists) {
-    await Chv.create({
-      userId: user._id,
-      name: user.name,
-      phone: user.phone,
-      shaNumber: user.shaNumber,
-      password: user.passwordHash || password, // optional, depends on schema
-      email: user.email || email,
-    });
-  }
-}
+    if (user.role === "chv") {
+      const exists = await Chv.findOne({ userId: user._id });
+      if (!exists) {
+        await Chv.create({
+          userId: user._id,
+          name: user.name,
+          phone: user.phone,
+          shaNumber: user.shaNumber,
+          password: user.passwordHash || password,
+          email: user.email || email,
+        });
+      }
+    }
 
-
-    const token = signJwt({ userId: user._id, role: user.role }, '30d');
+    const token = signJwt({ userId: user._id, role: user.role }, "30d");
     const redirectTo = getRedirectByRole(user.role);
 
     return res.json({ token, user, redirectTo });
   } catch (err) {
-    console.error('verifyOtp error:', err.message, err.stack);
-
-    return res.status(500).json({ message: 'Server error' });
+    console.error("verifyOtp error:", err.message, err.stack);
+    return res.status(500).json({ message: "Server error" });
   }
 };
+
 
 
 
