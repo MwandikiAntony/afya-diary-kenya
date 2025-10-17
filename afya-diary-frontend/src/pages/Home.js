@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import FeaturesWithMockup from "./FeaturesWithMockup";
+import "@fortawesome/fontawesome-free/css/all.min.css";
+import ScrollAnimation from "../components/ScrollAnimation";
+import { motion } from "framer-motion";
+
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -120,9 +124,15 @@ export default function Home() {
 
   {/* Hero Content */}
   <div className="relative z-10 text-left px-6 md:px-24 max-w-xl text-white">
-    <h1 className="text-5xl md:text-4xl font-bold mb-5 leading-tight tracking-tight drop-shadow-lg">
-      Trusted Medical Care <br />For Every Kenyan
-    </h1>
+   <motion.h1
+  initial={{ opacity: 0, y: -50 }}
+  animate={{ opacity: 1, y: 0 }}
+  transition={{ duration: 1 }}
+  className="text-4xl md:text-4xl font-bold mb-5 tracking-tight drop-shadow-md"
+>
+  Trusted Medical Care <br /> For Every Kenyan.
+</motion.h1>
+
     <p className="text-lg md:text-xl mb-10 text-gray-200 leading-relaxed">
       Manage patients, track appointments, store records, and never miss important reminders.
     </p>
@@ -152,7 +162,8 @@ export default function Home() {
 
       {/* ✅ About Section */}
       {/* ✅ About Section */}
-<section className="relative px-6 md:px-16 py-24 bg-white">
+<ScrollAnimation>
+  <section className="relative px-6 md:px-16 py-24 bg-white">
   <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
     {/* Left: Image */}
     <div className="relative">
@@ -240,34 +251,124 @@ export default function Home() {
     </div>
   </div>
 </section>
+</ScrollAnimation>
 
 
-      {/* ✅ Call to Action */}
-      <section className="py-20 bg-blue-700 text-center text-white">
-        <h2 className="text-3xl md:text-4xl font-bold mb-4">
-          Ready to take charge of your health?
-        </h2>
-        <p className="mb-6 text-lg md:text-xl">
-          Create your account today and experience simplified healthcare management.
-        </p>
-        <Link
-          to="/register"
-          className="px-8 py-3 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600 transition"
-        >
-          Get Started
-        </Link>
-      </section>
+   
+  {/* ✅ Call-to-Action Section */}
+<ScrollAnimation>
+  <section className="relative py-24 overflow-hidden bg-gradient-to-r from-blue-800 via-blue-700 to-green-600 text-white text-center">
+  {/* Decorative gradient glow */}
+  <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.2),transparent_60%)]"></div>
+
+  <div className="relative max-w-3xl mx-auto px-6">
+    <motion.h2
+  initial={{ opacity: 0, y: 50 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  transition={{ duration: 0.7 }}
+  viewport={{ once: true }}
+  className="text-4xl md:text-5xl font-bold mb-6 tracking-tight drop-shadow-md"
+>
+  Ready to Take Charge of Your Health?
+</motion.h2>
+    <p className="text-lg md:text-xl text-blue-100 mb-10 leading-relaxed">
+      Join thousands of Kenyans using <span className="font-semibold text-green-300">AfyaDiary Kenya </span> 
+       to manage their health records, appointments, and wellness journey all in one place.
+    </p>
+
+    <Link
+      to="/register"
+      className="inline-block px-10 py-4 bg-green-500 text-white font-semibold rounded-full shadow-lg hover:bg-green-400 hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 ease-out"
+    >
+      Get Started
+    </Link>
+
+  </div>
+</section>
+</ScrollAnimation>
+
 
       {/* ✅ Footer */}
-      <footer className="py-10 bg-gray-100 text-gray-600 text-sm text-center">
-        <p>© {new Date().getFullYear()} AfyaDiary Kenya. All rights reserved.</p>
-        <div className="mt-4 flex flex-wrap justify-center gap-6 text-gray-500">
-          <a href="/privacy" className="hover:text-blue-700 transition">Privacy Policy</a>
-          <a href="/terms" className="hover:text-blue-700 transition">Terms of Service</a>
-          <a href="/contact" className="hover:text-blue-700 transition">Contact</a>
-          <a href="/support" className="hover:text-blue-700 transition">Support</a>
-        </div>
-      </footer>
+      <footer className="py-10 bg-gray-100 text-gray-600 text-sm text-center border-t border-gray-200">
+  {/* Brand */}
+   <h2 className="text-2xl font-bold text-blue-800 tracking-tight">
+    AfyaDiary <span className="text-green-600">Kenya</span>
+  </h2>
+  <p className="text-gray-500 mb-6">
+    Empowering healthcare through digital innovation and secure access.
+  </p>
+
+  {/* Links */}
+  <div className="flex flex-wrap justify-center gap-6 mb-6 text-gray-500">
+    <a
+      href="/privacy"
+      className="flex items-center gap-2 hover:text-blue-700 transition-all duration-300 hover:scale-105"
+    >
+      <i className="fas fa-user-shield"></i> Privacy Policy
+    </a>
+    <a
+      href="/terms"
+      className="flex items-center gap-2 hover:text-blue-700 transition-all duration-300 hover:scale-105"
+    >
+      <i className="fas fa-file-contract"></i> Terms of Service
+    </a>
+    <a
+      href="/contact"
+      className="flex items-center gap-2 hover:text-blue-700 transition-all duration-300 hover:scale-105"
+    >
+      <i className="fas fa-envelope"></i> Contact
+    </a>
+    <a
+      href="/support"
+      className="flex items-center gap-2 hover:text-blue-700 transition-all duration-300 hover:scale-105"
+    >
+      <i className="fas fa-headset"></i> Support
+    </a>
+  </div>
+
+  {/* Social Media Icons */}
+  <div className="flex justify-center gap-6 mb-6 text-gray-500">
+    <a
+      href="https://facebook.com"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="p-3 bg-gray-200 rounded-full hover:bg-blue-700 hover:text-white transition-all duration-300 transform hover:scale-110"
+    >
+      <i className="fab fa-facebook-f text-lg"></i>
+    </a>
+    <a
+      href="https://twitter.com"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="p-3 bg-gray-200 rounded-full hover:bg-blue-700 hover:text-white transition-all duration-300 transform hover:scale-110"
+    >
+      <i className="fab fa-twitter text-lg"></i>
+    </a>
+    <a
+      href="https://linkedin.com"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="p-3 bg-gray-200 rounded-full hover:bg-blue-700 hover:text-white transition-all duration-300 transform hover:scale-110"
+    >
+      <i className="fab fa-linkedin-in text-lg"></i>
+    </a>
+    <a
+      href="https://instagram.com"
+      target="_blank"
+      rel="noopener noreferrer"
+      className="p-3 bg-gray-200 rounded-full hover:bg-blue-700 hover:text-white transition-all duration-300 transform hover:scale-110"
+    >
+      <i className="fab fa-instagram text-lg"></i>
+    </a>
+  </div>
+
+  {/* Copyright */}
+  <p className="text-gray-500 text-xs">
+    © {new Date().getFullYear()} <span className="font-medium">AfyaDiary Kenya</span>. All rights reserved.
+  </p>
+</footer>
+
+
     </div>
   );
 }
