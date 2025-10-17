@@ -4,11 +4,15 @@ import { useNavigate } from "react-router-dom";
 import CHVLayout from "../../components/CHVLayout";
 import api from "../../utils/api";
 import toast from "react-hot-toast";
+import MentalHealthCard from "../../components/Shared/MentalHealthCard";
+import MoodTracker from "../../components/AIHelper/MoodTracker";
+
 
 export default function CHVDashboard() {
   const [patients, setPatients] = useState([]);
   const [reminders, setReminders] = useState([]);
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user"));
 
   // ✅ Fetch patients
   const fetchPatients = async () => {
@@ -84,6 +88,14 @@ export default function CHVDashboard() {
             </button>
           </div>
         </div>
+
+      
+    <div className="p-6 space-y-6">
+      <h1 className="text-2xl font-bold text-gray-800">CHV Dashboard</h1>
+      <MentalHealthCard />
+      <MoodTracker userId={user._id} />
+    </div>
+
 
         {/* Reminders Section */}
         <div className="mt-8 bg-white p-6 rounded-xl shadow hover:shadow-lg transition">

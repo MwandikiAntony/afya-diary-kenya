@@ -29,6 +29,8 @@ import AddRecord from "./pages/chemist/AddRecord"
 import AddMedicinePage from "./pages/chemist/AddMedicinePage";
 import AddPatientPage from "./pages/chemist/AddPatientPage";
 import DispensePage from "./pages/chemist/DispensePage";
+import MentalHealthTips from "./components/AIHelper/MentalHealthTips";
+import AIChat from "./components/AIHelper/AIChat";
 
 export default function App() {
   return (
@@ -110,6 +112,9 @@ export default function App() {
         <Route path= "/chemist/add-patient"
   element= {<AddPatientPage/>} />,
 
+      <Route path="/ai-helper" element={<AIChat />} />
+      <Route path="/mental-health/tips" element={<MentalHealthTips />} />
+   
 
 
 
