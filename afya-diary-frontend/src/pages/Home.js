@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-
+import FeaturesWithMockup from "./FeaturesWithMockup";
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
+
+
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 via-white to-green-50">
@@ -29,11 +31,12 @@ export default function Home() {
       Login
     </Link>
     <Link
-      to="/register"
-      className="px-5 py-2.5 bg-green-600 text-white font-semibold rounded-full shadow-md hover:bg-green-700 hover:shadow-lg transition-all duration-300"
-    >
-      Sign Up
-    </Link>
+  to="/register"
+  className="text-gray-700 hover:text-green-600 transition-colors duration-200"
+>
+  Sign Up
+</Link>
+
   </div>
 
   {/* Mobile Menu Button */}
@@ -93,7 +96,7 @@ export default function Home() {
       </Link>
       <Link
         to="/register"
-        className="px-5 py-2 bg-green-600 text-white font-semibold rounded-full hover:bg-green-700 transition-all duration-300"
+        className="hover:text-green-600 transition-colors duration-200"
         onClick={() => setMenuOpen(false)}
       >
         Sign Up
@@ -104,89 +107,140 @@ export default function Home() {
 
 
       {/* ✅ Hero Section */}
-      <header className="relative h-[95vh] flex items-center">
-        {/* Background Image */}
-        <img
-          src="/images/Hero.png"
-          alt="Trusted Medical Care for Every Kenyan"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
+      <header className="relative h-[95vh] flex items-center overflow-hidden">
+  {/* Background Image */}
+  <img
+    src="/images/Hero.png"
+    alt="Trusted Medical Care for Every Kenyan"
+    className="absolute inset-0 w-full h-full object-cover scale-105"
+  />
 
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent"></div>
+  {/* Gradient Overlay */}
+  <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/60 to-transparent"></div>
 
-        {/* Hero Content */}
-        <div className="relative z-10 text-left px-6 md:px-20 max-w-2xl text-white">
-          <h1 className="text-5xl md:text-6xl font-extrabold mb-6 leading-tight">
-            Trusted Medical Care <br /> For Every Kenyan
-          </h1>
-          <p className="text-lg md:text-xl mb-10 text-gray-200 leading-relaxed">
-            AfyaDiary Kenya — your trusted healthcare companion. Manage patients,
-            track appointments, store records, and never miss important reminders.
-          </p>
-          <div className="flex gap-6 flex-wrap">
-            <Link
-              to="/login"
-              className="px-8 py-3 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition"
-            >
-              Login
-            </Link>
-            <Link
-              to="/register"
-              className="px-8 py-3 bg-green-600 text-white rounded-lg shadow-md hover:bg-green-700 transition"
-            >
-              Sign Up
-            </Link>
-          </div>
-        </div>
-      </header>
+  {/* Hero Content */}
+  <div className="relative z-10 text-left px-6 md:px-24 max-w-xl text-white">
+    <h1 className="text-5xl md:text-4xl font-bold mb-5 leading-tight tracking-tight drop-shadow-lg">
+      Trusted Medical Care <br />For Every Kenyan
+    </h1>
+    <p className="text-lg md:text-xl mb-10 text-gray-200 leading-relaxed">
+      Manage patients, track appointments, store records, and never miss important reminders.
+    </p>
+    <div className="flex gap-6">
+      <Link
+        to="/login"
+        className="px-8 py-3 bg-blue-700 text-white rounded-lg font-medium shadow-md hover:bg-blue-800 hover:scale-105 transition-all duration-300"
+      >
+        Login
+      </Link>
+      <Link
+        to="/register"
+        className="px-8 py-3 bg-green-600 text-white rounded-lg font-medium shadow-md hover:bg-green-700 hover:scale-105 transition-all duration-300"
+      >
+        Sign Up
+      </Link>
+    </div>
+  </div>
+</header>
+
+
 
       {/* ✅ Features Section */}
-      <section className="px-6 md:px-16 py-20 bg-white shadow-inner">
-        <h2 className="text-3xl md:text-4xl font-semibold text-center text-blue-800 mb-12">
-          Why Choose AfyaDiary Kenya?
-        </h2>
-        <div className="grid gap-10 md:grid-cols-3 text-center">
-          <div className="p-6 bg-blue-50 rounded-xl shadow hover:shadow-lg transition duration-200">
-            <h3 className="text-xl md:text-2xl font-bold text-blue-700 mb-3">
-              Patient Management
-            </h3>
-            <p className="text-gray-600">
-              Easily register, monitor, and update patient records in one central place.
-            </p>
-          </div>
-          <div className="p-6 bg-green-50 rounded-xl shadow hover:shadow-lg transition duration-200">
-            <h3 className="text-xl md:text-2xl font-bold text-green-700 mb-3">
-              Appointments & Reminders
-            </h3>
-            <p className="text-gray-600">
-              Schedule and manage appointments with automatic reminders for better health outcomes.
-            </p>
-          </div>
-          <div className="p-6 bg-blue-50 rounded-xl shadow hover:shadow-lg transition duration-200">
-            <h3 className="text-xl md:text-2xl font-bold text-blue-700 mb-3">
-              Secure Records
-            </h3>
-            <p className="text-gray-600">
-              Keep sensitive medical information safe with encrypted record storage.
-            </p>
-          </div>
-        </div>
-      </section>
+      <FeaturesWithMockup/>
+     
+
 
       {/* ✅ About Section */}
-      <section className="px-6 md:px-16 py-20 bg-gradient-to-r from-blue-100 to-green-100">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-semibold text-blue-800 mb-6">
-            About AfyaDiary Kenya
-          </h2>
-          <p className="text-gray-700 text-lg md:text-xl leading-relaxed">
-            AfyaDiary Kenya is a modern healthcare application built for hospitals, clinics, and patients. 
-            Our mission is to simplify healthcare management and provide reliable, secure, and accessible 
-            digital health services across Kenya and beyond.
-          </p>
+      {/* ✅ About Section */}
+<section className="relative px-6 md:px-16 py-24 bg-white">
+  <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+    {/* Left: Image */}
+    <div className="relative">
+      <div className="absolute inset-0 bg-blue-100 rounded-3xl blur-3xl opacity-40"></div>
+      <img
+        src="/images/about-healthcare-team.png"
+        alt="Healthcare professionals collaborating"
+        className="relative rounded-2xl shadow-2xl w-full h-auto object-cover"
+      />
+    </div>
+
+    {/* Right: Text Content */}
+    <div>
+      <h2 className="text-4xl md:text-5xl font-bold text-blue-900 mb-6 leading-snug">
+        About <span className="text-green-600">AfyaDiary Kenya</span>
+      </h2>
+
+      <p className="text-gray-600 text-lg md:text-xl leading-relaxed mb-6">
+        AfyaDiary Kenya is a modern healthcare management platform designed to
+        connect patients, chemists, hospitals, and community health volunteers.
+        Our goal is to make healthcare data simple, secure, and accessible for
+        everyone — empowering digital health across Kenya and beyond.
+      </p>
+
+      <div className="grid sm:grid-cols-2 gap-6 mt-8">
+        <div className="flex items-start gap-4">
+          <div className="bg-green-100 text-green-700 p-3 rounded-lg">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 16h-1v-4h-1m1-4h.01M12 20.5a8.5 8.5 0 100-17 8.5 8.5 0 000 17z"
+              />
+            </svg>
+          </div>
+          <div>
+            <h4 className="font-semibold text-lg text-blue-800">Our Mission</h4>
+            <p className="text-gray-600 text-sm leading-relaxed">
+              To improve healthcare accessibility and transparency through
+              secure digital innovation.
+            </p>
+          </div>
         </div>
-      </section>
+
+        <div className="flex items-start gap-4">
+          <div className="bg-blue-100 text-blue-700 p-3 rounded-lg">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          </div>
+          <div>
+            <h4 className="font-semibold text-lg text-blue-800">Our Vision</h4>
+            <p className="text-gray-600 text-sm leading-relaxed">
+              A connected Kenya where every citizen can access efficient,
+              reliable, and digital health services.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <a
+        href="/about"
+        className="inline-block mt-10 px-8 py-3 bg-blue-700 text-white font-medium rounded-lg shadow-md hover:bg-blue-800 hover:scale-105 transition-transform duration-300"
+      >
+        Learn More
+      </a>
+    </div>
+  </div>
+</section>
+
 
       {/* ✅ Call to Action */}
       <section className="py-20 bg-blue-700 text-center text-white">
