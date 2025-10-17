@@ -13,9 +13,6 @@ import { Card, CardHeader, CardContent } from "../../components/ui/card";
 import toast from "react-hot-toast";
 import api from "../../utils/api";
 import { useNavigate } from "react-router-dom"; // ⬅️ add this near top
-import MentalHealthCard from "../../components/Shared/MentalHealthCard";
-import MoodTracker from "../../components/AIHelper/MoodTracker";
-  
   
 
 export default function ChemistDashboard() {
@@ -29,7 +26,7 @@ export default function ChemistDashboard() {
   const [openMedicine, setOpenMedicine] = useState(false);
   const [openRecord, setOpenRecord] = useState(false);
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user"));
+
   // ✅ Fetch dispensed medicines
   const fetchDispenses = async () => {
     try {
@@ -174,13 +171,6 @@ const handleSearch = async () => {
             </CardContent>
           </Card>
         )}
-
-       
-      <MentalHealthCard />
-      
-
-      <MoodTracker userId={user._id} />
-    
 
         {/* Medicine Stock */}
         <Card>

@@ -31,6 +31,7 @@ import AddPatientPage from "./pages/chemist/AddPatientPage";
 import DispensePage from "./pages/chemist/DispensePage";
 import MentalHealthTips from "./components/AIHelper/MentalHealthTips";
 import AIChat from "./components/AIHelper/AIChat";
+import MoodTracker from "./components/AIHelper/MoodTracker";
 
 export default function App() {
   return (
@@ -114,7 +115,7 @@ export default function App() {
 
       <Route path="/ai-helper" element={<AIChat />} />
       <Route path="/mental-health/tips" element={<MentalHealthTips />} />
-   
+    <Route path="/mood-tracker" element={<MoodTracker />} />
 
 
 

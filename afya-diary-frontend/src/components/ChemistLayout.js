@@ -5,18 +5,21 @@ import { Home, QrCode, Package, User } from "lucide-react";
 export default function ChemistLayout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = React.useState("home"); // add local state
 
   const links = [
     { to: "/chemist-dashboard", label: "Dashboard", icon: <Home size={20} /> },
     { to: "/chemist-scan", label: "Scan QR", icon: <QrCode size={20} /> },
     { to: "/chemist-inventory", label: "Inventory", icon: <Package size={20} /> },
     { to: "/chemist-profile", label: "Profile", icon: <User size={20} /> },
+    { to: "/ai-helper", label: "Mental AI", icon: <User size={20} /> },
+    { to: "/mental-health/tips", label: "Mood Tracker", icon: <User size={20} /> },
   ];
-   
+
   const handleLogout = () => {
-    localStorage.removeItem("token"); //clear auth token
+    localStorage.removeItem("token");
     navigate("/login");
-  }
+  };
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -40,17 +43,20 @@ export default function ChemistLayout({ children }) {
               {link.label}
             </Link>
           ))}
-         <button
-          onClick={handleLogout}
-          className="mt-4 bg-red-600 hover:bg-red-700 py-2 px-3 rounded font-semibold transition"
-        >
-          🚪 Logout
-        </button>
+
+          <button
+            onClick={handleLogout}
+            className="mt-4 bg-red-600 hover:bg-red-700 py-2 px-3 rounded font-semibold transition"
+          >
+            🚪 Logout
+          </button>
         </nav>
       </div>
 
       {/* Main content */}
-      <div className="flex-1 overflow-y-auto">{children}</div>
+      <div className="flex-1 overflow-y-auto">
+        {React.cloneElement(children, { activeTab, setActiveTab })}
+      </div>
     </div>
   );
 }
