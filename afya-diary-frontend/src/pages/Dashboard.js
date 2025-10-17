@@ -2,6 +2,10 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../utils/api";
 import PatientLayout from "../components/PatientLayout";
+import MentalHealthCard from "../components/Shared/MentalHealthCard";
+import MoodTracker from "../components/AIHelper/MoodTracker";
+
+  
 
 export default function Dashboard() {
   console.log("🎯 Patient dashboard rendered");
@@ -75,6 +79,13 @@ export default function Dashboard() {
             View Records
           </Link>
         </div>
+
+        {/*Mental Health card*/}
+         <div className="p-6 space-y-6">
+      <h1 className="text-2xl font-bold text-gray-800">Patient Dashboard</h1>
+      <MentalHealthCard />
+      <MoodTracker userId={user._id} />
+    </div>
 
         <div className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
           <h3 className="text-xl font-semibold text-[#00695C] mb-2">📅 Appointments</h3>

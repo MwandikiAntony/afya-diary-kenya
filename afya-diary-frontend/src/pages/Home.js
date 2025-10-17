@@ -152,6 +152,24 @@ export default function Home() {
     </div>
   </div>
 </header>
+{/* Mental Health*/}
+<section className="bg-blue-50 py-12 text-center">
+  <h2 className="text-3xl font-semibold text-blue-700 mb-4">
+    Feeling stressed or overwhelmed?
+  </h2>
+  <p className="text-gray-600 mb-6">
+    Get mental health support and talk with our AI Wellness Assistant for free.
+  </p>
+  <div className="flex justify-center gap-4">
+    <a href="/register" className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700">
+      Get Help Now
+    </a>
+    <a href="/learn-more" className="border border-blue-600 text-blue-600 px-6 py-3 rounded-lg hover:bg-blue-50">
+      Learn More
+    </a>
+  </div>
+</section>
+
 
 
 

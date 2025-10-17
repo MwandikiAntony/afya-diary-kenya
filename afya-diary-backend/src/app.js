@@ -10,7 +10,7 @@ const chvRoutes = require("./routes/chvRoutes");
 const reminderRoutes = require('./routes/reminderRoutes');
 const healthRecordRoutes = require('./routes/healthRecordRoutes');
 const chemistRoutes = require('./routes/chemistRoutes');
-
+const mentalHealthRoutes = require ('./routes/mentalHealthRoutes')
 
 
 const patientRoutes = require('./routes/patientRoutes');
@@ -36,7 +36,7 @@ app.use('/api/records', healthRecordRoutes);
 app.use('/api/chemist', chemistRoutes);
 app.use('/api/patients', patientRoutes);
 app.use('/api/reports', reportRoutes);
-
+app.use("/api/mental-health", mentalHealthRoutes);
 app.get('/api/patients', (req, res) => {
   // logic to return patients
 });
