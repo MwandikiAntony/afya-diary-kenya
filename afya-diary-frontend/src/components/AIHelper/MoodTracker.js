@@ -1,79 +1,72 @@
-import { useState, useEffect } from "react";
-import { logMood, getMoodHistory } from "../../utils/aiHelperAPI";
+import { useState, useEffect, useRef } from "react";
+import SharedLayout from "../../components/SharedLayout";
 
-export default function MoodTracker({ userId }) {
-  const [mood, setMood] = useState("");
-  const [notes, setNotes] = useState("");
-  const [history, setHistory] = useState([]);
+export default function MoodTracker({ userId, initialMoods = [] }) {
+  const [moods, setMoods] = useState(initialMoods);
+  const [currentMood, setCurrentMood] = useState("");
+  const [loading, setLoading] = useState(false);
+  const moodEndRef = useRef(null);
 
+  // Scroll to bottom when moods update
   useEffect(() => {
-    if (!userId) return;
-    fetchHistory();
-  }, [userId]);
+    moodEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [moods]);
 
-  const fetchHistory = async () => {
+  const handleAddMood = async () => {
+    if (!currentMood.trim()) return;
+
+    const newMood = { mood: currentMood, date: new Date().toISOString() };
+    setMoods(prev => [...prev, newMood]);
+    setCurrentMood("");
+
+    // Optional: Send to backend
+    setLoading(true);
     try {
-      const res = await getMoodHistory(userId);
-      setHistory(res.data);
+      // Replace with API call
+      await new Promise((res) => setTimeout(res, 500));
     } catch (err) {
       console.error(err);
-    }
-  };
-
-  const handleLogMood = async () => {
-    if (!mood) return;
-    try {
-      await logMood({ userId, mood, notes });
-      setMood("");
-      setNotes("");
-      fetchHistory();
-    } catch (err) {
-      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <h1 className="text-2xl font-bold text-blue-700 mb-4">Mood Tracker</h1>
+    <SharedLayout>
+      <div className="flex flex-col min-h-[70vh] bg-white p-4 rounded-lg shadow-md">
+        <h2 className="text-xl font-semibold mb-4">Mood Tracker</h2>
 
-      <div className="flex gap-3 mb-4">
-        <select
-          value={mood}
-          onChange={(e) => setMood(e.target.value)}
-          className="border p-2 rounded-lg"
-        >
-          <option value="">Select Mood</option>
-          <option value="Happy">Happy</option>
-          <option value="Sad">Sad</option>
-          <option value="Anxious">Anxious</option>
-          <option value="Stressed">Stressed</option>
-        </select>
+        <div className="flex-1 overflow-y-auto space-y-2">
+          {moods.length > 0 ? (
+            moods.map((m, i) => (
+              <div key={i} className="p-3 rounded-lg bg-yellow-100 text-yellow-900">
+                {m.mood} <span className="text-xs text-gray-500">({new Date(m.date).toLocaleString()})</span>
+              </div>
+            ))
+          ) : (
+            <p>No mood entries yet.</p>
+          )}
+          <div ref={moodEndRef} />
+        </div>
 
-        <input
-          type="text"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          placeholder="Notes (optional)"
-          className="border p-2 rounded-lg flex-1"
-        />
-
-        <button
-          onClick={handleLogMood}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-        >
-          Log
-        </button>
+        <div className="flex gap-3 mt-4">
+          <input
+            className="flex-1 border rounded-lg px-3 py-2"
+            value={currentMood}
+            onChange={(e) => setCurrentMood(e.target.value)}
+            placeholder="Enter your mood..."
+            onKeyDown={(e) => e.key === "Enter" && handleAddMood()}
+            disabled={loading}
+          />
+          <button
+            onClick={handleAddMood}
+            className={`px-4 py-2 rounded-lg text-white ${loading ? "bg-gray-400" : "bg-yellow-600 hover:bg-yellow-700"}`}
+            disabled={loading}
+          >
+            {loading ? "Saving..." : "Add"}
+          </button>
+        </div>
       </div>
-
-      <h2 className="text-xl font-semibold mb-2">History</h2>
-      <ul className="space-y-2">
-        {history.map((h, i) => (
-          <li key={i} className="p-3 bg-white rounded-lg shadow-sm border">
-            <strong>{h.mood}</strong> - {h.notes || "No notes"} <br />
-            <small>{new Date(h.createdAt).toLocaleString()}</small>
-          </li>
-        ))}
-      </ul>
-    </div>
+    </SharedLayout>
   );
 }

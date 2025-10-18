@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 import SharedLayout from "../../components/SharedLayout";
 
 export default function AIChat() {
@@ -6,27 +7,42 @@ export default function AIChat() {
     { from: "ai", text: "Hello! I'm Afya Assistant. How are you feeling today?" },
   ]);
   const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!input.trim()) return;
-    setMessages([...messages, { from: "user", text: input }]);
+
+    const newMessage = { from: "user", text: input };
+    setMessages((prev) => [...prev, newMessage]);
     setInput("");
-    setTimeout(() => {
-      setMessages(prev => [
+    setLoading(true);
+
+    try {
+      const res = await axios.post("http://localhost:5000/api/ai/chat", {
+  messages: [...messages, newMessage],
+});
+
+
+      setMessages((prev) => [...prev, { from: "ai", text: res.data.text }]);
+    } catch (err) {
+      console.error(err);
+      setMessages((prev) => [
         ...prev,
-        { from: "ai", text: "Thank you for sharing. Remember, it's okay to take a break and breathe deeply. 💙" },
+        { from: "ai", text: "Sorry, something went wrong. 😢" },
       ]);
-    }, 1000);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <SharedLayout>
-      <div className="flex flex-col min-h-[70vh]">
-        <div className="flex-1 overflow-y-auto">
+      <div className="flex flex-col min-h-[70vh] p-6">
+        <div className="flex-1 overflow-y-auto flex flex-col gap-2">
           {messages.map((msg, i) => (
             <div
               key={i}
-              className={`my-2 p-3 rounded-lg max-w-xs ${
+              className={`max-w-xs p-3 rounded-lg ${
                 msg.from === "ai"
                   ? "bg-blue-100 text-blue-800 self-start"
                   : "bg-green-100 text-green-800 self-end ml-auto"
@@ -43,12 +59,15 @@ export default function AIChat() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your message..."
+            onKeyDown={(e) => e.key === "Enter" && handleSend()}
+            disabled={loading}
           />
           <button
             onClick={handleSend}
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+            disabled={loading}
           >
-            Send
+            {loading ? "Sending..." : "Send"}
           </button>
         </div>
       </div>

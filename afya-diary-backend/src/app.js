@@ -11,6 +11,7 @@ const reminderRoutes = require('./routes/reminderRoutes');
 const healthRecordRoutes = require('./routes/healthRecordRoutes');
 const chemistRoutes = require('./routes/chemistRoutes');
 const mentalHealthRoutes = require ('./routes/mentalHealthRoutes')
+const aiRouter =require ("./routes/ai.js");
 
 
 const patientRoutes = require('./routes/patientRoutes');
@@ -40,6 +41,7 @@ app.use("/api/mental-health", mentalHealthRoutes);
 app.get('/api/patients', (req, res) => {
   // logic to return patients
 });
+app.use('/api/ai', aiRouter);
 
 app.get('/api/patients/assigned', (req, res) => {
   // logic to return assigned patients
