@@ -13,7 +13,8 @@ export default function ChemistLayout({ children }) {
     { to: "/chemist-inventory", label: "Inventory", icon: <Package size={20} /> },
     { to: "/chemist-profile", label: "Profile", icon: <User size={20} /> },
     { to: "/ai-helper", label: "Mental AI", icon: <User size={20} /> },
-    { to: "/mental-health/tips", label: "Mood Tracker", icon: <User size={20} /> },
+    { to: "/mental-health/tips", label: "Health Tips", icon: <User size={20} /> },
+    { to: "/mood-tracker", label: "Mood Tracker", icon: <User size={20} /> },
   ];
 
   const handleLogout = () => {

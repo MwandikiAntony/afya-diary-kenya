@@ -11,6 +11,9 @@ export default function PatientLayout({ children }) {
     { to: "/appointments", label: "Appointments", icon: <ClipboardList size={20} /> },
     { to: "/notifications", label: "Notifications", icon: <Bell size={20} /> },
     { to: "/profile", label: "Profile", icon: <User size={20} /> },
+    { to: "/ai-helper", label: "Mental AI", icon: <User size={20} /> },
+    { to: "/mental-health/tips", label: "Health Tips", icon: <User size={20} /> },
+    { to: "/mood-tracker", label: "Mood Tracker", icon: <User size={20} /> },
   ];
 
   const handleLogout = () => {

@@ -11,6 +11,9 @@ export default function CHVLayout({ children }) {
     { to: "/chv-patients", label: "Patients", icon: <Users size={20} /> },
     { to: "/chv-reports", label: "Reports", icon: <FileText size={20} /> },
     { to: "/chv-profile", label: "Profile", icon: <User size={20} /> },
+    { to: "/ai-helper", label: "Mental AI", icon: <User size={20} /> },
+    { to: "/mental-health/tips", label: "Health Tips", icon: <User size={20} /> },
+    { to: "/mood-tracker", label: "Mood Tracker", icon: <User size={20} /> },
   ];
 
   const handleLogout =() => {

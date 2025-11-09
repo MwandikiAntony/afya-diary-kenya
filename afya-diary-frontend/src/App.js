@@ -80,7 +80,7 @@ export default function App() {
         {/* CHV */}
         <Route
           path="/chv-dashboard"
-          element={<ProtectedRoute role="chv"><CHVDashboard /></ProtectedRoute>}
+          element= {<CHVDashboard />}
         />
         <Route
         path="/chv-patients"
