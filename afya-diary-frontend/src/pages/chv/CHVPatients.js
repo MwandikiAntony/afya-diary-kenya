@@ -194,7 +194,23 @@ export default function ChvPatients() {
                 <div className="flex justify-end gap-2 mt-4">
                   <button
                     type="button"
-          
+                    onClick={() => setOpen(false)}
+                    className="px-4 py-2 border rounded-lg text-gray-600 hover:bg-gray-100"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-[#00695C] hover:bg-[#004D40] text-white rounded-lg"
+                  >
+                    {editing ? "Update" : "Add"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+      </div>
     </ChvLayout>
   );
 }
