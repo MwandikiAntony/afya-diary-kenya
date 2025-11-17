@@ -1,6 +1,3 @@
-// src/middlewares/roleMiddleware.js
-
-// usage: roleMiddleware('chv') or roleMiddleware('admin') or roleMiddleware('chv','admin')
 module.exports = function roleMiddleware(...allowed) {
   return (req, res, next) => {
     try {
