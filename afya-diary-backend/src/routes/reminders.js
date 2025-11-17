@@ -13,8 +13,8 @@ router.get('/', async (req, res) => {
   }
 });
 
-// @desc  Create new reminder
-// @route POST /reminders
+// Create new reminder
+// POST /reminders
 router.post('/', async (req, res) => {
   try {
     const reminder = new Reminder(req.body);

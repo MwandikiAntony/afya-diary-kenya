@@ -11,9 +11,9 @@ router.post('/', reminderController.createReminder);
 router.get('/', reminderController.getMyReminders);       // view reminders created by self
 router.put('/:id', reminderController.updateReminder);    // edit own reminders
 router.delete('/:id', reminderController.deleteReminder); // delete own reminders
-// GET /reminders/upcoming
+// GET upcoming reminders
 router.get('/upcoming', reminderController.getUpcomingReminders);
-// GET /reminders/overdue
+// GET overdue reminders
 router.get('/overdue', reminderController.getOverdueReminders);
 
 
