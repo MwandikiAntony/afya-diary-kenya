@@ -27,10 +27,7 @@ const authMiddleware = async (req, res, next) => {
     req.user = { userId: payload.userId };
 
     next();
-  } catch (err) {
-    console.error('authMiddleware error', err);
-    res.status(500).json({ message: 'Server error' });
-  }
+  
 };
 
 module.exports = authMiddleware;
