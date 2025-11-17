@@ -1,61 +1,96 @@
-Afya Diary Kenya — README
- Overview
+Afya Diary Kenya
 
-Afya Diary Kenya is a health management platform designed to connect Patients, CHVs (Community Health Volunteers), and Chemists within a unified digital ecosystem.
-The platform enables users to register using OTP-based authentication, manage their personal health records, access nearby CHVs and chemists, track medical data, and improve healthcare accessibility across Kenya.
+A digital health management platform connecting Patients, Community Health Volunteers (CHVs), and Chemists across Kenya.
 
-Afya Diary Kenya is built using the MERN Stack (MongoDB, Express.js, React.js, Node.js) with a fully role-based login experience.
+Table of Contents
 
- Features
- Authentication
+Overview
 
-OTP-based login (no passwords needed)
+Features
 
-Role-based access:
+Tech Stack
 
-Patient Dashboard
+Project Structure
 
-CHV Dashboard
+Installation & Setup
 
-Chemist Dashboard
+API Endpoints
 
-Secure JWT tokens with 30-day session handling
+User Roles & Access
+
+Development Status
+
+Author
+
+Support
+
+Overview
+
+Afya Diary Kenya is a digital healthcare system built to streamline communication and health record management between patients, CHVs, and chemists.
+It provides:
+
+OTP-based registration and authentication
+
+Centralized health records
+
+CHV-driven community support
+
+Medication and prescription tracking
+
+Geo-based access to nearby health providers
+
+The system is powered by the MERN Stack with fully role-based dashboards.
+
+Features
+Authentication
+
+OTP-based login (no passwords)
+
+Secure JWT authentication with 30-day sessions
 
 Automatic user creation on first login
 
- Patient Features
+Role-based access system:
 
-View and update personal health records
+Patient dashboard
 
-Manage medications
+CHV dashboard
 
-Access nearby CHVs and chemists
+Chemist dashboard
 
-Health diary & symptom tracking
+Patient Features
 
-Receive CHV guidance and reminders
+Manage personal health records
 
- CHV Features
+Track symptoms and health diary
+
+View nearby CHVs and chemists
+
+Manage medication lists
+
+Receive reminders and CHV guidance
+
+CHV Features
 
 Manage assigned patients
 
-Update patient health visits
+Record health visits and follow-ups
 
-Record vitals, symptoms & follow-ups
+Update vitals, symptoms, and notes
 
-Track community health progress
+Monitor community health patterns
 
- Chemist Features
+Chemist Features
 
-Manage medicines dispensed
+Manage dispensed medications
 
-Provide patient medication history
+Access patient medication history
 
 Verify prescriptions
 
 Support for digital prescriptions
 
- Tech Stack
+Tech Stack
 Frontend
 
 React.js
@@ -68,7 +103,7 @@ React Router
 
 React Hot Toast
 
-Context API for global authentication
+Context API
 
 Backend
 
@@ -80,11 +115,11 @@ MongoDB + Mongoose
 
 JWT Authentication
 
-OTP service using SMS Gateway
+OTP service via SMS Gateway
 
 Role-based authorization middleware
 
- Project Structure (Summary)
+Project Structure
 /client
   ├── src
   │   ├── pages
@@ -110,18 +145,17 @@ Role-based authorization middleware
   │   └── db.js
   └── server.js
 
- Installation & Setup
+Installation & Setup
 1. Clone the Repository
 git clone https://github.com/<your-username>/afya-diary-kenya.git
 cd afya-diary-kenya
 
-2. Install Backend Dependencies
+2. Backend Setup
 cd server
 npm install
 
-Backend Environment Variables
 
-Create a .env file with:
+Create a .env file:
 
 PORT=5000
 MONGO_URI=mongodb+srv://...
@@ -129,55 +163,55 @@ JWT_SECRET=your-secret
 OTP_TTL_MIN=5
 SMS_API_KEY=your-sms-provider-key
 
-3. Install Frontend Dependencies
+3. Frontend Setup
 cd ../client
 npm install
 
 4. Run the Application
-Backend
+
+Backend:
+
 npm run dev
 
-Frontend
+
+Frontend:
+
 npm start
 
- API Endpoints (Auth)
+API Endpoints
+Authentication Endpoints
 METHOD	ENDPOINT	DESCRIPTION
-POST	/auth/request-otp	Generates & sends OTP to phone
-POST	/auth/verify-otp	Verifies OTP & logs in user
-POST	/auth/resend-otp	Sends a new OTP
-GET	/auth/me	Fetch logged-in user details
- User Roles & Access
-Role	Access
-Patient	Health diary, CHV lookup, medication list
-CHV	Manage patients, record community visits
-Chemist	Dispense drugs, view medication history
- Development Status
-
-OTP login ️
-
-Role-based dashboards 
-
-User onboarding 
-
-SMS Integration 
-
-Patient diary 
-
-CHV management module
-
-Chemist prescription module 
-
-🧑‍💻 Author
+POST	/auth/request-otp	Generate and send OTP
+POST	/auth/verify-otp	Verify OTP and log in
+POST	/auth/resend-otp	Resend OTP
+GET	/auth/me	Get current user information
+User Roles & Access
+Role	Permissions
+Patient	Diary, CHV lookup, medication list
+CHV	Manage patients, record visits
+Chemist	Dispense drugs, medication history
+Development Status
+Feature	Status
+OTP login	Completed
+Role-based dashboards	Completed
+User onboarding	Completed
+SMS integration	Completed
+Patient diary	In progress
+CHV management module	Coming soon
+Chemist prescription module	Coming soon
+Author
 
 Antony Mwandiki
 Software Developer — Kenya
+
 GitHub: https://github.com/MwandikiAntony
 
 LinkedIn: https://www.linkedin.com/in/antony-mwandiki-36a788255
 
-📞 Support
+Support
 
-For inquiries or collaboration:
-📧 Email: antonymwandiki26@gmail.com
+For inquiries or collaborations:
 
-📱 Phone: +254702224523
+Email: antonymwandiki26@gmail.com
+
+Phone: +254702224523
