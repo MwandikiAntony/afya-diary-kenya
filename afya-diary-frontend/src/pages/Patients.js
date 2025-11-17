@@ -93,7 +93,7 @@ export default function Patients() {
                 required
               />
               <input
-                placeholder="+2547XXXXXXXX"
+                placeholder="+254712345678"
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
                 className="border rounded-lg p-3 w-full focus:ring-2 focus:ring-[#00695C]"
