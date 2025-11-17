@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 const Record = require('../models/Record');
 
-// @desc  Get all records
-// @route GET /records
+// Get all records
+// GET /records
 router.get('/', async (req, res) => {
   try {
     const records = await Record.find();
@@ -13,8 +13,8 @@ router.get('/', async (req, res) => {
   }
 });
 
-// @desc  Add new record
-// @route POST /records
+// Add new record
+//  POST /records
 router.post('/', async (req, res) => {
   try {
     const record = new Record(req.body);
