@@ -18,7 +18,7 @@ chvSchema.pre('save', async function (next) {
   next();
 });
 
-// Method to compare password
+// compare password
 chvSchema.methods.validatePassword = async function (password) {
   return await bcrypt.compare(password, this.password);
 };

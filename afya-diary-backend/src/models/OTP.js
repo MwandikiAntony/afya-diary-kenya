@@ -7,7 +7,7 @@ const otpSchema = new mongoose.Schema({
   attempts: { type: Number, default: 0 },
   used: { type: Boolean, default: false },
 
-  // ✅ Store the user's intended role
+  // Store the user's intended role
   role: {
     type: String,
     enum: ['patient', 'chemist', 'chv', 'admin'],

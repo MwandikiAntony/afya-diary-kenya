@@ -9,7 +9,7 @@ const prescriptionSchema = new mongoose.Schema(
     },
     chemist: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // we assume chemists are also users
+      ref: "User", // assume chemists are also users
       required: true,
     },
     medication: {
