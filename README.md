@@ -98,7 +98,7 @@ The platform is built using the **MERN Stack** with full role-based access.
 │   └── db.js
 └── server.js
 ```
-## 1. Installation & Setup
+### 1. Installation & Setup
 Clone the repository
 
 ````
@@ -106,13 +106,13 @@ git clone https://github.com/MwandikiAntony/afya-diary-kenya.git
 cd afya-diary-kenya
 ````
 
-## 2. Install backend dependencies
+### 2. Install backend dependencies
 ````
 cd server
 npm install
 Configure backend environment variables
 ````
-## 3. Create a .env file inside the /server directory:
+### 3. Create a .env file inside the /server directory:
 
 env
 ```
@@ -122,13 +122,13 @@ JWT_SECRET=your-secret
 OTP_TTL_MIN=5
 SMS_API_KEY=your-sms-provider-key
 ```
-## 4. Install frontend dependencies
+### 4. Install frontend dependencies
 
 ```
 cd ../client
 npm install
 ````
-## 5. Run the application
+### 5. Run the application
 
 
 Backend
