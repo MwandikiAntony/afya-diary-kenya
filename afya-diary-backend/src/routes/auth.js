@@ -12,7 +12,7 @@ router.post("/resend-otp", authController.resendOtp);
 // Public: verify OTP -> returns JWT and user
 router.post('/verify-otp', authController.verifyOtp);
 
-// Protected: set PIN (optional)
+// Protected: set PIN 
 router.post('/set-pin', authMiddleware, authController.setPin);
 
 // Public: login with PIN
