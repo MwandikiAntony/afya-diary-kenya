@@ -1,4 +1,3 @@
-// src/middlewares/rateLimiter.js
 const store = new Map(); // phone -> { count, firstTs }
 
 const WINDOW_MS = 60 * 60 * 1000; // 1 hour
