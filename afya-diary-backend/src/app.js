@@ -54,6 +54,8 @@ app.get('/api/reports', (req, res) => {
 
 
 // Health check
-
+app.get("/", (req, res) => {
+  res.send("✅ Afya Diary API is running...");
+});
 
 module.exports = app;
