@@ -2,7 +2,7 @@
 
 A digital health management platform connecting Patients, Community Health Volunteers (CHVs), and Chemists across Kenya.
 
-
+---
 
 ## Overview
 
@@ -72,90 +72,90 @@ The platform is built using the **MERN Stack** with full role-based access.
 
 ## Project Structure
 
+```text
 /client
 ├── src
-│ ├── pages
-│ │ ├── Login.js
-│ │ ├── VerifyOTP.js
-│ │ ├── Dashboard.js
-│ │ ├── CHVDashboard.js
-│ │ └── ChemistDashboard.js
-│ ├── components
-│ ├── context
-│ ├── utils
-│ └── App.js
+│   ├── pages
+│   │   ├── Login.js
+│   │   ├── VerifyOTP.js
+│   │   ├── Dashboard.js
+│   │   ├── CHVDashboard.js
+│   │   └── ChemistDashboard.js
+│   ├── components
+│   ├── context
+│   ├── utils
+│   └── App.js
 
 /server
 ├── controllers
-│ └── authController.js
+│   └── authController.js
 ├── models
-│ ├── OTP.js
-│ └── User.js
+│   ├── OTP.js
+│   └── User.js
 ├── routes
-│ └── authRoutes.js
+│   └── authRoutes.js
 ├── config
-│ └── db.js
+│   └── db.js
 └── server.js
+```
+## 1. Installation & Setup
+Clone the repository
 
-yaml
-Copy code
-
----
-
-## Installation & Setup
-
-1. **Clone the repository**
-```bash
+````
 git clone https://github.com/MwandikiAntony/afya-diary-kenya.git
 cd afya-diary-kenya
-Install backend dependencies
+````
 
-bash
-Copy code
+## 2. Install backend dependencies
+````
 cd server
 npm install
 Configure backend environment variables
-
-Create a .env file inside the /server directory:
+````
+## 3. Create a .env file inside the /server directory:
 
 env
-Copy code
+```
 PORT=5000
 MONGO_URI=mongodb+srv://<your-mongodb-uri>
 JWT_SECRET=your-secret
 OTP_TTL_MIN=5
 SMS_API_KEY=your-sms-provider-key
-Install frontend dependencies
+```
+## 4. Install frontend dependencies
 
-bash
-Copy code
+```
 cd ../client
 npm install
-Run the application
+````
+## 5. Run the application
 
-bash
-Copy code
-# Backend
+
+Backend
+````
 cd ../server
 npm run dev
-
-# Frontend
+````
+Frontend
+````
 cd ../client
 npm start
-API Endpoints
+
+````
+## API Endpoints
 Method	Endpoint	Description
-POST	/auth/request-otp	Generate and send OTP
-POST	/auth/verify-otp	Verify OTP and log in
-POST	/auth/resend-otp	Resend a new OTP
-GET	/auth/me	Fetch authenticated user data
+1. POST	/auth/request-otp	Generate and send OTP
+2. POST	/auth/verify-otp	Verify OTP and log in
+3. POST	/auth/resend-otp	Resend a new OTP
+4. GET	/auth/me	Fetch authenticated user data
 
-User Roles & Access
+## User Roles & Access
 Role	Access Permissions
-Patient	Health diary, medication list, CHV lookup
-CHV	Patient management, record community visits
-Chemist	Dispense drugs, view medication history
+1. Patient	Health diary, medication list, CHV lookup
+2. CHV	Patient management, record community visits
+3. Chemist	Dispense drugs, view medication history
 
-Development Status
+## Development Status
 OTP login — Complete
 
 Role-based dashboards — Complete
@@ -164,20 +164,20 @@ User onboarding — Complete
 
 SMS Integration — Complete
 
-Patient diary — In progress
+Patient diary — Complete
 
-CHV Management module — Coming soon
+CHV Management module — Complete
 
-Chemist Prescription module — Coming soon
+Chemist Prescription module — Complete
 
-Author
+## Author
 Antony Mwandiki — Software Developer, Kenya
 
 GitHub: https://github.com/MwandikiAntony
 
 LinkedIn: https://www.linkedin.com/in/antony-mwandiki-36a788255
 
-Support
+## Support
 For inquiries or collaboration:
 
 Email: antonymwandiki26@gmail.com
