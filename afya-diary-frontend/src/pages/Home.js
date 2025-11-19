@@ -13,7 +13,7 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-blue-50 via-white to-green-50">
       
-      {/* ✅ Transparent Navbar over hero */}
+      {/*  Transparent Navbar over hero */}
       <nav className="fixed top-0 left-0 w-full flex items-center justify-between px-6 md:px-12 py-4 bg-white shadow-md z-50">
   {/* Logo */}
   <h1 className="text-2xl font-bold text-blue-800 tracking-tight">
@@ -110,7 +110,7 @@ export default function Home() {
 </nav>
 
 
-      {/* ✅ Hero Section */}
+      {/*  Hero Section */}
       <header className="relative h-[95vh] flex items-center overflow-hidden">
   {/* Background Image */}
   <img
@@ -173,13 +173,13 @@ export default function Home() {
 
 
 
-      {/* ✅ Features Section */}
+      {/*  Features Section */}
       <FeaturesWithMockup/>
      
 
 
-      {/* ✅ About Section */}
-      {/* ✅ About Section */}
+      {/*  About Section */}
+     
 <ScrollAnimation>
   <section className="relative px-6 md:px-16 py-24 bg-white">
   <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
@@ -273,7 +273,7 @@ export default function Home() {
 
 
    
-  {/* ✅ Call-to-Action Section */}
+  {/*  Call-to-Action Section */}
 <ScrollAnimation>
   <section className="relative py-24 overflow-hidden bg-gradient-to-r from-blue-800 via-blue-700 to-green-600 text-white text-center">
   {/* Decorative gradient glow */}
@@ -306,7 +306,7 @@ export default function Home() {
 </ScrollAnimation>
 
 
-      {/* ✅ Footer */}
+      {/*  Footer */}
       <footer className="py-10 bg-gray-100 text-gray-600 text-sm text-center border-t border-gray-200">
   {/* Brand */}
    <h2 className="text-2xl font-bold text-blue-800 tracking-tight">
