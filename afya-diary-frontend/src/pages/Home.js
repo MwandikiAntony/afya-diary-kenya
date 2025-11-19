@@ -4,8 +4,45 @@ import FeaturesWithMockup from "./FeaturesWithMockup";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import ScrollAnimation from "../components/ScrollAnimation";
 import { motion } from "framer-motion";
+import { FaFacebookF, FaTwitter, FaLinkedinIn, FaInstagram } from "react-icons/fa";
 
 export default function Home() {
+  const FooterSection = ({ title, links }) => {
+  const [open, setOpen] = useState(false);
+  const [country, setCountry] = useState("Kenya");
+  const [language, setLanguage] = useState("English");
+
+  return (
+    <div className="border-b border-gray-300 md:border-none pb-4 md:pb-0">
+
+      {/* Header (clickable on mobile) */}
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between md:cursor-default md:pointer-events-none"
+      >
+        <h4 className="font-semibold text-gray-900">{title}</h4>
+        <span className="md:hidden text-xl">{open ? "−" : "+"}</span>
+      </button>
+
+      {/* Content (accordion on mobile, open on desktop) */}
+      <ul
+        className={`overflow-hidden transition-all duration-300 md:block ${
+          open ? "max-h-40 mt-3" : "max-h-0 md:max-h-full md:mt-3"
+        }`}
+      >
+        {links.map((item) => (
+          <li key={item.label} className="mt-2">
+            <a href={item.href} className="hover:text-blue-700 text-gray-600">
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+
+    </div>
+  );
+};
+
   const [menuOpen, setMenuOpen] = useState(false);
 
 
@@ -306,85 +343,133 @@ export default function Home() {
 </ScrollAnimation>
 
 
-      {/*  Footer */}
-      <footer className="py-10 bg-gray-100 text-gray-600 text-sm text-center border-t border-gray-200">
-  {/* Brand */}
-   <h2 className="text-2xl font-bold text-blue-800 tracking-tight">
-    AfyaDiary <span className="text-green-600">Kenya</span>
-  </h2>
-  <p className="text-gray-500 mb-6">
-    Empowering healthcare through digital innovation and secure access.
-  </p>
+     {/* Footer */}
+<footer className="bg-gray-100 border-t border-gray-300 text-gray-700 text-sm">
+  <div className="max-w-7xl mx-auto px-6 py-10">
 
-  {/* Links */}
-  <div className="flex flex-wrap justify-center gap-6 mb-6 text-gray-500">
-    <a
-      href="/privacy"
-      className="flex items-center gap-2 hover:text-blue-700 transition-all duration-300 hover:scale-105"
-    >
-      <i className="fas fa-user-shield"></i> Privacy Policy
-    </a>
-    <a
-      href="/terms"
-      className="flex items-center gap-2 hover:text-blue-700 transition-all duration-300 hover:scale-105"
-    >
-      <i className="fas fa-file-contract"></i> Terms of Service
-    </a>
-    <a
-      href="/contact"
-      className="flex items-center gap-2 hover:text-blue-700 transition-all duration-300 hover:scale-105"
-    >
-      <i className="fas fa-envelope"></i> Contact
-    </a>
-    <a
-      href="/support"
-      className="flex items-center gap-2 hover:text-blue-700 transition-all duration-300 hover:scale-105"
-    >
-      <i className="fas fa-headset"></i> Support
-    </a>
+    {/* Top Region Row */}
+    <div className="flex flex-wrap items-center justify-between border-b border-gray-300 pb-6 mb-8">
+      <div className="flex items-center gap-2">
+        <span className="font-semibold">Country / Region:</span>
+        <span className="text-gray-800 font-medium">Kenya</span>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <span className="font-semibold">Language:</span>
+        <span className="text-gray-800 font-medium">English</span>
+      </div>
+
+      <div className="flex items-center gap-4">
+        <span className="font-semibold">Contact us:</span>
+        <span className="text-gray-800">+254 712 345 678</span>
+        <span>•</span>
+        <span className="text-gray-800">support@afyadiary.co.ke</span>
+      </div>
+    </div>
+
+    {/* Link Sections */}
+<div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-6">
+
+  <FooterSection
+    title="Platform"
+    links={[
+      { label: "Features", href: "/features" },
+      { label: "Mobile App", href: "/mobile-app" },
+      { label: "Security", href: "/security" },
+      { label: "Integrations", href: "/integrations" },
+    ]}
+  />
+
+  <FooterSection
+    title="Healthcare Tools"
+    links={[
+      { label: "Patient Records", href: "/patient-records" },
+      { label: "Appointment System", href: "/appointments" },
+      { label: "Analytics", href: "/analytics" },
+      { label: "Doctor Dashboard", href: "/doctor-dashboard" },
+    ]}
+  />
+
+  <FooterSection
+    title="Documentation"
+    links={[
+      { label: "User Guides", href: "/guides" },
+      { label: "API Documentation", href: "/api" },
+      { label: "Help Center", href: "/faq" },
+      { label: "Support", href: "/support" },
+    ]}
+  />
+
+  <FooterSection
+    title="Learn"
+    links={[
+      { label: "Health Guides", href: "/blogs" },
+      { label: "Resources", href: "/resources" },
+      { label: "Privacy & Safety", href: "/privacy-tips" },
+      { label: "Training", href: "/training" },
+    ]}
+  />
+
+  <FooterSection
+    title="Company"
+    links={[
+      { label: "About Us", href: "/about" },
+      { label: "Leadership", href: "/team" },
+      { label: "Contact Us", href: "/contact" },
+      { label: "Careers", href: "/careers" },
+    ]}
+  />
+
+  <FooterSection
+    title="Policies"
+    links={[
+      { label: "Privacy Policy", href: "/privacy" },
+      { label: "Terms of Service", href: "/terms" },
+      { label: "Data Protection", href: "/data-protection" },
+      { label: "Complaints Procedure", href: "/complaints" },
+    ]}
+  />
+
+</div>
+    {/* Social Media Icons */}
+    <div className="flex justify-center gap-6 my-8 text-lg text-gray-700">
+      <a href="#" className="hover:text-blue-600"><FaFacebookF /></a>
+      <a href="#" className="hover:text-blue-400"><FaTwitter /></a>
+      <a href="#" className="hover:text-blue-700"><FaLinkedinIn /></a>
+      <a href="#" className="hover:text-pink-500"><FaInstagram /></a>
+    </div>
+
+
+    {/* Legal Disclaimer */}
+    <div className="mt-10 text-xs text-gray-500 leading-relaxed">
+      <p>
+        AfyaDiary Kenya is a digital healthcare management platform aimed at improving patient record
+        accessibility, appointment management, and secure data handling. You should ensure that you use the
+        system responsibly and comply with local healthcare regulations and data privacy laws.
+      </p>
+
+      <p className="mt-4">
+        AfyaDiary Kenya Ltd is registered in Kenya. For any regulatory or compliance inquiries, please contact
+        our support team.
+      </p>
+    </div>
+
+    {/* Bottom Row */}
+    <div className="flex flex-wrap items-center justify-between mt-8 pt-6 border-t border-gray-300">
+      <p className="text-xs text-gray-500">
+        © {new Date().getFullYear()} AfyaDiary Kenya. All rights reserved.
+      </p>
+
+      <div className="flex items-center gap-6 text-xs">
+        <a href="/sitemap" className="hover:text-blue-700">Sitemap</a>
+        <a href="/cookie-settings" className="hover:text-blue-700">Cookie Settings</a>
+        <a href="/terms" className="hover:text-blue-700">Terms & Policies</a>
+        <a href="/complaints" className="hover:text-blue-700">Complaints Procedure</a>
+      </div>
+    </div>
   </div>
-
-  {/* Social Media Icons */}
-  <div className="flex justify-center gap-6 mb-6 text-gray-500">
-    <a
-      href="https://facebook.com"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="p-3 bg-gray-200 rounded-full hover:bg-blue-700 hover:text-white transition-all duration-300 transform hover:scale-110"
-    >
-      <i className="fab fa-facebook-f text-lg"></i>
-    </a>
-    <a
-      href="https://twitter.com"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="p-3 bg-gray-200 rounded-full hover:bg-blue-700 hover:text-white transition-all duration-300 transform hover:scale-110"
-    >
-      <i className="fab fa-twitter text-lg"></i>
-    </a>
-    <a
-      href="https://linkedin.com"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="p-3 bg-gray-200 rounded-full hover:bg-blue-700 hover:text-white transition-all duration-300 transform hover:scale-110"
-    >
-      <i className="fab fa-linkedin-in text-lg"></i>
-    </a>
-    <a
-      href="https://instagram.com"
-      target="_blank"
-      rel="noopener noreferrer"
-      className="p-3 bg-gray-200 rounded-full hover:bg-blue-700 hover:text-white transition-all duration-300 transform hover:scale-110"
-    >
-      <i className="fab fa-instagram text-lg"></i>
-    </a>
-  </div>
-
-  {/* Copyright */}
-  <p className="text-gray-500 text-xs">
-    © {new Date().getFullYear()} <span className="font-medium">AfyaDiary Kenya</span>. All rights reserved.
-  </p>
 </footer>
+
 
 
     </div>
