@@ -140,8 +140,15 @@ Frontend
 ````
 cd ../client
 npm start
-
 ````
+
+## Live Demo
+
+[![Frontend](https://img.shields.io/badge/Frontend-Live-brightgreen)](https://afya-diary-kenya.vercel.app/)
+[![Backend](https://img.shields.io/badge/Backend-API-blue)](https://afya-diary-kenya.onrender.com)
+
+
+
 ## API Endpoints
 Method	Endpoint	Description
 1. POST	/auth/request-otp	Generate and send OTP
