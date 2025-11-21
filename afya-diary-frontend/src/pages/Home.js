@@ -9,8 +9,7 @@ import { FaFacebookF, FaTwitter, FaLinkedinIn, FaInstagram } from "react-icons/f
 export default function Home() {
   const FooterSection = ({ title, links }) => {
   const [open, setOpen] = useState(false);
-  const [country, setCountry] = useState("Kenya");
-  const [language, setLanguage] = useState("English");
+  
 
   return (
     <div className="border-b border-gray-300 md:border-none pb-4 md:pb-0">
