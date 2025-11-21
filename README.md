@@ -3,7 +3,12 @@
 A digital health management platform connecting Patients, Community Health Volunteers (CHVs), and Chemists across Kenya.
 
 ---
+## Live Demo
 
+[![Frontend](https://img.shields.io/badge/Frontend-Live-brightgreen)](https://afya-diary-kenya.vercel.app/)
+[![Backend](https://img.shields.io/badge/Backend-API-blue)](https://afya-diary-kenya.onrender.com)
+
+---
 ## Overview
 
 Afya Diary Kenya is a digital healthcare system designed to streamline health record management and improve communication among patients, CHVs, and chemists. Key capabilities include:
@@ -141,13 +146,6 @@ Frontend
 cd ../client
 npm start
 ````
-
-## Live Demo
-
-[![Frontend](https://img.shields.io/badge/Frontend-Live-brightgreen)](https://afya-diary-kenya.vercel.app/)
-[![Backend](https://img.shields.io/badge/Backend-API-blue)](https://afya-diary-kenya.onrender.com)
-
-
 
 ## API Endpoints
 Method	Endpoint	Description
