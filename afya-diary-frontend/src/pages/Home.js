@@ -327,8 +327,8 @@ export default function Home() {
   Ready to Take Charge of Your Health?
 </motion.h2>
     <p className="text-lg md:text-xl text-blue-100 mb-10 leading-relaxed">
-      Join thousands of Kenyans using <span className="font-semibold text-green-300">AfyaDiary Kenya </span> 
-       to manage their health records, appointments, and wellness journey all in one place.
+      Join thousands of Kenyans using <span className="font-semibold text-green-300">Afya Diary Kenya </span> 
+       to manage your health records, appointments, and wellness journey all in one place.
     </p>
 
     <Link
