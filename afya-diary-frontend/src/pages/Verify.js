@@ -28,17 +28,19 @@ export default function Verify() {
     e.preventDefault();
     setLoading(true);
     try {
-      const { data } = await api.post("/auth/verify-otp", { 
-        phone,
-        code: otp,
-        role,
-        password,
-        name: state.name,
-        shaNumber: state.shaNumber,
-        licenseNumber: state.licenseNumber,
-        pharmacyName: state.pharmacyName,
-        email: state.email, // ✅ fixed
-      });
+      const endpoint = state?.name ? "/verify-registration-otp" : "/verify-login-otp";
+const { data } = await api.post(`/auth${endpoint}`, { 
+  phone,
+  code: otp,
+  role,
+  password,
+  name: state.name,
+  shaNumber: state.shaNumber,
+  licenseNumber: state.licenseNumber,
+  pharmacyName: state.pharmacyName,
+  email: state.email,
+});
+
 
       if (data?.token && data?.user) {
         localStorage.setItem("token", data.token);
