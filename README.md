@@ -188,3 +188,7 @@ For inquiries or collaboration:
 Email: antonymwandiki26@gmail.com
 
 Phone: +254702224523
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
