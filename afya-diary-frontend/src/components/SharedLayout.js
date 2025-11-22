@@ -5,6 +5,8 @@ import { Home, Heart, MessageSquare } from "lucide-react";
 export default function SharedLayout({ children, role }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem("user"));
+const dashboardRole = role || user?.role;
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -26,12 +28,13 @@ export default function SharedLayout({ children, role }) {
   };
 
   // Role-based links
-  const links = [
-    { to: getDashboardPath(role), label: "Dashboard", icon: <Home size={20} /> },
-    { to: "/ai-chat", label: "AI Chat", icon: <MessageSquare size={20} /> },
-    { to: "/mental-health/tips", label: "Mental Health Tips", icon: <Heart size={20} /> },
-    { to: "/mood-tracker", label: "Mood Tracker", icon: <Heart size={20} /> },
-  ];
+ const links = [
+  { to: getDashboardPath(dashboardRole), label: "Dashboard", icon: <Home size={20} /> },
+  { to: "/ai-chat", label: "AI Chat", icon: <MessageSquare size={20} /> },
+  { to: "/mental-health/tips", label: "Mental Health Tips", icon: <Heart size={20} /> },
+  { to: "/mood-tracker", label: "Mood Tracker", icon: <Heart size={20} /> },
+];
+
 
   return (
     <div className="flex h-screen bg-gray-100">
