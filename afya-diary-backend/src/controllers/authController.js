@@ -113,6 +113,110 @@ exports.verifyLoginOtp = async (req, res) => {
 };
 
 
+// Verify OTP for REGISTRATION (creates new user)
+exports.verifyRegistrationOtp = async (req, res) => {
+  try {
+    const {
+      phone,
+      code,
+      name,
+      role,
+      email,
+      password,
+      shaNumber,
+      licenseNumber,
+      pharmacyName,
+      dob,
+      gender,
+    } = req.body;
+
+    if (!phone || !code || !name)
+      return res.status(400).json({ message: "Phone, code, and name are required" });
+
+    const otp = await OTP.findOne({ phone, used: false }).sort({ createdAt: -1 });
+    if (!otp) return res.status(400).json({ message: "Invalid or expired code" });
+
+    if (otp.expiresAt < new Date())
+      return res.status(400).json({ message: "OTP expired" });
+
+    if (otp.attempts >= OTP_MAX_ATTEMPTS)
+      return res.status(429).json({ message: "Too many attempts" });
+
+    if (otp.code !== code) {
+      otp.attempts = (otp.attempts || 0) + 1;
+      await otp.save();
+      return res.status(400).json({ message: "Invalid code" });
+    }
+
+    otp.used = true;
+    await otp.save();
+
+    // REGISTRATION: create user if not exists
+    let user = await User.findOne({ phone });
+    if (user) {
+      return res.status(400).json({ message: "User already exists. Please login." });
+    }
+
+    user = new User({
+      phone,
+      name,
+      role: role || "patient",
+      email: email || undefined,
+      dob: dob || undefined,
+      gender: gender || "other",
+      ...(shaNumber ? { shaNumber } : {}),
+      ...(licenseNumber ? { licenseNumber } : {}),
+      ...(pharmacyName ? { pharmacyName } : {}),
+    });
+
+    if (password) await user.setPassword(password);
+    await user.save();
+
+    // Create role-specific records safely
+    if (user.role === "patient") {
+      await Patient.create({
+        userId: user._id,
+        phone: user.phone,
+        name: user.name,
+        shaNumber: shaNumber || user.shaNumber,
+        dob: dob || user.dob,
+        gender: gender || user.gender,
+      });
+    }
+
+    if (user.role === "chemist") {
+      if (!licenseNumber)
+        return res.status(400).json({ message: "License number is required for chemists." });
+
+      await Chemist.create({
+        userId: user._id,
+        phone,
+        licenseNumber,
+        pharmacyName,
+        email,
+      });
+    }
+
+    if (user.role === "chv") {
+      await Chv.create({
+        userId: user._id,
+        name: user.name,
+        phone: user.phone,
+        shaNumber: user.shaNumber,
+        password: user.passwordHash || password,
+        email: user.email || email,
+      });
+    }
+
+    const token = signJwt({ userId: user._id, role: user.role }, "30d");
+    const redirectTo = getRedirectByRole(user.role);
+
+    return res.json({ token, user, redirectTo });
+  } catch (err) {
+    console.error("verifyRegistrationOtp error:", err.message, err.stack);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
 
 
 
