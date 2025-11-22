@@ -61,22 +61,11 @@ exports.requestOtp = async (req, res) => {
   }
 };
 
-// Verify OTP and create/update user
-exports.verifyOtp = async (req, res) => {
+
+// Verify OTP for LOGIN (existing users only)
+exports.verifyLoginOtp = async (req, res) => {
   try {
-    const {
-      phone,
-      code,
-      name,
-      shaNumber,
-      role,
-      email,
-      password,
-      licenseNumber,
-      pharmacyName,
-      dob,
-      gender,
-    } = req.body;
+    const { phone, code, role } = req.body;
 
     if (!phone || !code)
       return res.status(400).json({ message: "Phone and code required" });
@@ -99,96 +88,18 @@ exports.verifyOtp = async (req, res) => {
     otp.used = true;
     await otp.save();
 
-    // ✅ First, find or create user
-    let user = await User.findOne({ phone });
-
+    // LOGIN: only allow existing users
+    const user = await User.findOne({ phone, role });
     if (!user) {
-      // Create new user safely
-      user = new User({
-        phone,
-        name,
-        role: role || "patient",
-        email: email || undefined,
-        dob: dob || undefined,
-        gender: gender || "other",
-        ...(shaNumber ? { shaNumber } : {}),
-        ...(licenseNumber ? { licenseNumber } : {}),
-        ...(pharmacyName ? { pharmacyName } : {}),
+      return res
+        .status(400)
+        .json({ message: "User not found. Please register first." });
+    }
+
+    if (role && user.role !== role) {
+      return res.status(403).json({
+        message: `Access denied. You are registered as a ${user.role}. Please log in using the correct role.`,
       });
-
-      if (password) {
-        await user.setPassword(password);
-      }
-
-      await user.save();
-    } else {
-      // ✅ NEW: Role consistency check
-      if (role && user.role !== role) {
-        return res.status(403).json({
-          message: `Access denied. You are registered as a ${user.role}. Please log in using the correct role.`,
-        });
-      }
-
-      // Update user only if needed
-      if (shaNumber && !user.shaNumber) user.shaNumber = shaNumber;
-      if (email && !user.email) user.email = email;
-      if (password && !user.passwordHash) await user.setPassword(password);
-      if (licenseNumber && !user.licenseNumber) user.licenseNumber = licenseNumber;
-      if (pharmacyName && !user.pharmacyName) user.pharmacyName = pharmacyName;
-      if (dob && !user.dob) user.dob = dob;
-      if (gender && !user.gender) user.gender = gender;
-      if (name && !user.name) user.name = name;
-
-      await user.save();
-    }
-
-    // ✅ Create role-specific records safely
-    if (user.role === "patient") {
-      const exists = await Patient.findOne({ userId: user._id });
-      if (!exists) {
-        await Patient.create({
-          userId: user._id,
-          phone: user.phone,
-          name: user.name,
-          shaNumber: shaNumber || user.shaNumber,
-          dob: dob || user.dob,
-          gender: gender || user.gender,
-        });
-      }
-    }
-
-    if (user.role === "chemist") {
-      const exists = await Chemist.findOne({ userId: user._id });
-      if (!exists) {
-        if (!licenseNumber) {
-          console.error("❌ Missing licenseNumber for chemist:", req.body);
-          return res.status(400).json({
-            message: "License number is required for chemists.",
-          });
-        }
-
-        await Chemist.create({
-          userId: user._id,
-          phone,
-          licenseNumber,
-          pharmacyName,
-          email,
-        });
-      }
-    }
-
-    if (user.role === "chv") {
-      const exists = await Chv.findOne({ userId: user._id });
-      if (!exists) {
-        await Chv.create({
-          userId: user._id,
-          name: user.name,
-          phone: user.phone,
-          shaNumber: user.shaNumber,
-          password: user.passwordHash || password,
-          email: user.email || email,
-        });
-      }
     }
 
     const token = signJwt({ userId: user._id, role: user.role }, "30d");
@@ -196,10 +107,12 @@ exports.verifyOtp = async (req, res) => {
 
     return res.json({ token, user, redirectTo });
   } catch (err) {
-    console.error("verifyOtp error:", err.message, err.stack);
+    console.error("verifyLoginOtp error:", err.message, err.stack);
     return res.status(500).json({ message: "Server error" });
   }
 };
+
+
 
 
 
