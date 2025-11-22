@@ -41,8 +41,8 @@ const dashboardRole = role || user?.role;
       {/* Sidebar */}
       <div className="w-64 bg-[#0D47A1] text-white flex flex-col">
         <div className="p-6 font-bold text-2xl border-b border-blue-900">
-          {role?.toUpperCase() || "Afya Panel"}
-        </div>
+  {dashboardRole?.toUpperCase() || "Afya Panel"}
+       </div>
 
         <nav className="flex-1 p-4 space-y-2">
           {links.map((link) => (
