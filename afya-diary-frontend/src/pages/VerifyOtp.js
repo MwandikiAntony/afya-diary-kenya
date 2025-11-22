@@ -15,8 +15,9 @@ export default function VerifyOTP() {
   e.preventDefault();
   setLoading(true);
   try {
-    const role = state?.role;
-    const { data } = await api.post("/auth/verify-otp", {
+    const endpoint = state?.name ? "/verify-registration-otp" : "/verify-login-otp";
+
+const { data } = await api.post(`/auth${endpoint}`, { 
   phone,
   code: otp,
   role,
