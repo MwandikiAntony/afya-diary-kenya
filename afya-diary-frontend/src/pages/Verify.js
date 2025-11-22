@@ -6,10 +6,10 @@ import toast from "react-hot-toast";
 export default function Verify() {
   const location = useLocation();
   const navigate = useNavigate();
-  const phone = location.state?.phone || "";
-  const role = location.state?.role || "patient";
   const state = location.state || {}; // ✅ define state
-  const password = state?.password;
+  const phone = state.phone || "";
+  const role = state.role || "patient";
+  const password = state.password;
 
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
@@ -25,42 +25,41 @@ export default function Verify() {
   }, [timer]);
 
   const verifyOtp = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  try {
-    const { data } = await api.post("/auth/verify-otp", { 
-  phone, 
-  code: otp, 
-  role,
-  password,
-  name: state?.name,
-  shaNumber: state?.shaNumber, 
-  licenseNumber: state?.licenseNumber,
-  pharmacyName: state?.pharmacyName,
-  email: state?.email, // ✅ FIXED — include email
-});
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const { data } = await api.post("/auth/verify-otp", { 
+        phone,
+        code: otp,
+        role,
+        password,
+        name: state.name,
+        shaNumber: state.shaNumber,
+        licenseNumber: state.licenseNumber,
+        pharmacyName: state.pharmacyName,
+        email: state.email, // ✅ fixed
+      });
 
+      if (data?.token && data?.user) {
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        toast.success("✅ Login successful");
 
-    if (data?.token && data?.user) {
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-      toast.success("✅ Login successful");
-
-      // Redirect by role
-      if (data.user.role === "patient") navigate("/dashboard");
-      else if (data.user.role === "chv") navigate("/chv-dashboard");
-      else if (data.user.role === "chemist") navigate("/chemist-dashboard");
-      else navigate("/dashboard");
-    } else {
-      toast.error("Unexpected server response");
+        // Redirect by role
+        if (data.user.role === "patient") navigate("/dashboard");
+        else if (data.user.role === "chv") navigate("/chv-dashboard");
+        else if (data.user.role === "chemist") navigate("/chemist-dashboard");
+        else navigate("/dashboard");
+      } else {
+        toast.error("Unexpected server response");
+      }
+    } catch (err) {
+      console.error("verifyOtp error", err);
+      toast.error(err.response?.data?.message || "Invalid OTP");
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error("verifyOtp error", err);
-    toast.error(err.response?.data?.message || "Invalid OTP");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   // Resend OTP handler
   const resendOtp = async () => {
@@ -133,15 +132,16 @@ export default function Verify() {
               {resending ? "Resending..." : "Resend OTP"}
             </button>
           )}
+
           <p className="text-sm text-gray-500 mt-6 text-center">
-          Go Back to{" "}
-          <button
-            onClick={() => navigate("/login", { state: { role } })}
-            className="text-green-600 hover:underline"
-          >
-            Sign In
-          </button>
-        </p>
+            Go Back to{" "}
+            <button
+              onClick={() => navigate("/login", { state: { role } })}
+              className="text-green-600 hover:underline"
+            >
+              Sign In
+            </button>
+          </p>
         </div>
       </div>
     </div>
