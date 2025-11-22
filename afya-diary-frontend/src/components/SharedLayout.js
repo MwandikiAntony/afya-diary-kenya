@@ -1,4 +1,4 @@
-import React from "react";
+import React from "react"; 
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Home, Heart, MessageSquare } from "lucide-react";
 
@@ -11,9 +11,23 @@ export default function SharedLayout({ children, role }) {
     navigate("/login");
   };
 
+  // Determine dashboard path based on role
+  const getDashboardPath = (role) => {
+    switch (role) {
+      case "patient":
+        return "/dashboard";
+      case "chv":
+        return "/chv-dashboard";
+      case "chemist":
+        return "/chemist-dashboard";
+      default:
+        return "/dashboard";
+    }
+  };
+
   // Role-based links
   const links = [
-    { to: "/dashboard", label: "Dashboard", icon: <Home size={20} /> },
+    { to: getDashboardPath(role), label: "Dashboard", icon: <Home size={20} /> },
     { to: "/ai-chat", label: "AI Chat", icon: <MessageSquare size={20} /> },
     { to: "/mental-health/tips", label: "Mental Health Tips", icon: <Heart size={20} /> },
     { to: "/mood-tracker", label: "Mood Tracker", icon: <Heart size={20} /> },
