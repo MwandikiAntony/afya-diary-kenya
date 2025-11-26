@@ -80,13 +80,6 @@ export default function Dashboard() {
           </Link>
         </div>
 
-        {/*Mental Health card*/}
-        <div className="p-6 space-y-6">
-  <h1 className="text-2xl font-bold text-gray-800">Patient Dashboard</h1>
-  <MentalHealthCard />
-  {user && <MoodTracker userId={user._id} />}
-</div>
-
 
         <div className="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
           <h3 className="text-xl font-semibold text-[#00695C] mb-2">📅 Appointments</h3>
