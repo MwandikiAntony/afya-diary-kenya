@@ -12,7 +12,9 @@ export default function AssignCHVPage() {
   const patient = location.state?.patient;
   const [chvs, setChvs] = useState([]);
   const [chvId, setChvId] = useState("");
+  const [loading, setLoading] = useState(false);
 
+  // Fetch CHVs
   useEffect(() => {
     (async () => {
       try {
@@ -25,23 +27,31 @@ export default function AssignCHVPage() {
   }, []);
 
   const handleAssign = async () => {
-    if (!chvId) {
-      toast.error("Select a CHV");
-      return;
-    }
+  if (!chvId) {
+    toast.error("Select a CHV");
+    return;
+  }
 
-    try {
-      const { data } = await api.post("/chemist/assign-chv", {
-        patientId: patient._id,
-        chvId,
-      });
+  try {
+    setLoading(true);
+    await api.post("/chemist/assign-chv", {
+      patientId: patient._id,
+      chvId,
+    });
 
-      toast.success("Patient assigned to CHV!");
-      navigate("/chemist/dashboard");
-    } catch (err) {
-      toast.error("Failed to assign CHV");
-    }
-  };
+    toast.success("Patient assigned to CHV!");
+
+    // Redirect explicitly after a short delay to show the toast
+    setTimeout(() => {
+      navigate("/chemist-dashboard");
+    }, 1000); // 1 second delay
+  } catch (err) {
+    toast.error("Failed to assign CHV");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <ChemistLayout>
@@ -57,6 +67,7 @@ export default function AssignCHVPage() {
           className="w-full border rounded px-3 py-2"
           value={chvId}
           onChange={(e) => setChvId(e.target.value)}
+          disabled={loading}
         >
           <option value="">-- Choose CHV --</option>
           {chvs.map((chv) => (
@@ -66,8 +77,8 @@ export default function AssignCHVPage() {
           ))}
         </select>
 
-        <Button onClick={handleAssign} className="w-full mt-4">
-          Assign to CHV
+        <Button onClick={handleAssign} className="w-full mt-4" disabled={loading}>
+          {loading ? "Assigning..." : "Assign to CHV"}
         </Button>
       </div>
     </ChemistLayout>

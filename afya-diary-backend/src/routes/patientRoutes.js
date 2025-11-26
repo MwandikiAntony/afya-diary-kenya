@@ -34,6 +34,25 @@ router.get("/search/:shaNumber", async (req, res) => {
   }
 });
 
+// Get patients assigned to logged-in CHV
+router.get('/assigned', authMiddleware, async (req, res) => {
+  try {
+    // req.user is set by authMiddleware
+    if (req.user.role !== 'chv') {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+
+    const patients = await Patient.find({ chvId: req.user._id })
+      .select('name phone age gender shaNumber')
+      .sort({ createdAt: -1 });
+
+    res.json(patients);
+  } catch (err) {
+    console.error('Error fetching assigned patients:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 
 
 
