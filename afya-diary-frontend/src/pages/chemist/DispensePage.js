@@ -77,14 +77,12 @@ const handleSubmit = async (e) => {
       patientId: patient?._id,
       medicineId: form.medicineId,
       quantity: form.quantity,
-      chemistId
     });
 
     const { data } = await api.post("/chemist/dispense", {
       patientId: patient?._id,
       medicineId: form.medicineId,
       quantity: form.quantity,
-      chemistId
     });
 
     toast.success(data.message || "Medicine dispensed successfully!");
@@ -97,6 +95,7 @@ const handleSubmit = async (e) => {
     setLoading(false);
   }
 };
+
 
 
  
