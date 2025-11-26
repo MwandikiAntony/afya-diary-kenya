@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+const Chv = require('../models/Chv');
+
 
 // Import middleware and controller
 const authMiddleware = require('../middlewares/authMiddleware'); // make sure the folder is singular
@@ -31,6 +33,19 @@ router.get('/dispenses', authMiddleware, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+// Fetch all CHVs
+router.get('/chvs', authMiddleware, async (req, res) => {
+  try {
+    const chvs = await Chv.find().select('-password'); // exclude password
+    res.json(chvs);
+  } catch (err) {
+    console.error('Error fetching CHVs:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
 
 
 // Assign patient to CHV
