@@ -1,6 +1,3 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-
 const authMiddleware = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -23,8 +20,8 @@ const authMiddleware = async (req, res, next) => {
     const user = await User.findById(payload.userId).select('-passwordHash');
     if (!user) return res.status(401).json({ message: 'User not found' });
 
-    // ✅ Use payload, not decoded
-    req.user = { userId: payload.userId };
+    // Store full user object
+    req.user = user;
 
     next();
   } catch (err) {
@@ -32,5 +29,6 @@ const authMiddleware = async (req, res, next) => {
     res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 module.exports = authMiddleware;
