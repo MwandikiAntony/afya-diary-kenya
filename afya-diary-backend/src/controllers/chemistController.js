@@ -54,15 +54,16 @@ exports.createPatient = async (req, res) => {
 
 exports.dispenseMedication = async (req, res) => {
   try {
-    const { shaNumber, medicineId, quantity } = req.body;
+    const { patientId, medicineId, quantity } = req.body;
 
-if (!shaNumber || !medicineId || !quantity) {
-  return res.status(400).json({ message: "Missing required fields" });
-}
+    // Validate input
+    if (!patientId || !medicineId || !quantity) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
 
-const patient = await Patient.findOne({ shaNumber });
-if (!patient) return res.status(404).json({ message: "Patient not found" });
-
+    // Find patient
+    const patient = await Patient.findById(patientId);
+    if (!patient) return res.status(404).json({ message: "Patient not found" });
 
     // Find medicine
     const medicine = await Medicine.findById(medicineId);
