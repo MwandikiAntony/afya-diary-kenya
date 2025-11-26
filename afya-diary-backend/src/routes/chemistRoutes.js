@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const Chv = require('../models/Chv');
+const Chv = require('../models/CHV');
 
 
 // Import middleware and controller
