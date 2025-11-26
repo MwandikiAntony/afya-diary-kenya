@@ -37,13 +37,11 @@ router.get("/search/:shaNumber", async (req, res) => {
 // Get patients assigned to logged-in CHV
 router.get('/assigned', authMiddleware, async (req, res) => {
   try {
-    // req.user is set by authMiddleware
-    if (req.user.role !== 'chv') {
-      return res.status(403).json({ message: 'Access denied' });
-    }
+    // req.user is the logged-in CHV
+    const chvId = req.user._id;
 
-    const patients = await Patient.find({ chvId: req.user._id })
-      .select('name phone age gender shaNumber')
+    const patients = await Patient.find({ chvId })
+      .select('-__v') 
       .sort({ createdAt: -1 });
 
     res.json(patients);
