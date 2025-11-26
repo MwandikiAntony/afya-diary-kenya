@@ -9,8 +9,6 @@ import toast from "react-hot-toast";
 export default function DispensePage() {
   const location = useLocation();
   const navigate = useNavigate();
-    const user = JSON.parse(localStorage.getItem("user"));
-const chemistId = user?._id;
 
   const patient = location.state?.patient;
   const [shaNumber, setShaNumber] = useState(patient?.shaNumber || ""); // ✅ dynamic + editable
@@ -58,6 +56,8 @@ const chemistId = user?._id;
   };
 
   // ✅ Handle submit
+    const user = JSON.parse(localStorage.getItem("user"));
+const chemistId = user?._id;
   const handleSubmit = async (e) => {
     e.preventDefault();
 
