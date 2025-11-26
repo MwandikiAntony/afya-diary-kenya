@@ -56,53 +56,46 @@ exports.dispenseMedication = async (req, res) => {
   try {
     const { shaNumber, medicineId, quantity } = req.body;
 
-    // ✅ Validate input
-    if (!shaNumber || !medicineId || !quantity) {
-      return res.status(400).json({ message: "Missing required fields" });
-    }
+if (!shaNumber || !medicineId || !quantity) {
+  return res.status(400).json({ message: "Missing required fields" });
+}
 
-    // ✅ Find patient by SHA number
-    const patient = await Patient.findOne({ shaNumber });
-    if (!patient) {
-      return res.status(404).json({ message: "Patient not found" });
-    }
+const patient = await Patient.findOne({ shaNumber });
+if (!patient) return res.status(404).json({ message: "Patient not found" });
 
-    // ✅ Find medicine
+
+    // Find medicine
     const medicine = await Medicine.findById(medicineId);
-    if (!medicine) {
-      return res.status(404).json({ message: "Medicine not found" });
-    }
+    if (!medicine) return res.status(404).json({ message: "Medicine not found" });
 
-    // ✅ Check stock
+    // Check stock
     if (medicine.stock < quantity) {
-      return res.status(400).json({
-        message: `Not enough stock. Only ${medicine.stock} left.`,
-      });
+      return res.status(400).json({ message: `Not enough stock. Only ${medicine.stock} left.` });
     }
 
-    // ✅ Deduct stock
+    // Deduct stock
     medicine.stock -= Number(quantity);
     await medicine.save();
 
-    // ✅ Record the dispense event
-    const dispenseRecord = new DispensedMedication({
+    // Record dispense
+    const dispenseRecord = await DispensedMedication.create({
       chemistId: req.user._id,
       patientId: patient._id,
       medicineId: medicine._id,
-      quantity,
+      quantity: Number(quantity),
     });
 
-    await dispenseRecord.save();
-
-    res.status(200).json({
+    res.status(201).json({
       message: "Medicine dispensed successfully",
       data: dispenseRecord,
     });
+
   } catch (error) {
     console.error("Error dispensing medication:", error);
     res.status(500).json({ message: "Server error while dispensing" });
   }
 };
+
 
 
 exports.getMedicines = async (req, res) => {
