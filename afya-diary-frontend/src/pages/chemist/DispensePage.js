@@ -55,55 +55,61 @@ export default function DispensePage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // ✅ Handle submit
-    const user = JSON.parse(localStorage.getItem("user"));
+  
+// user data from localStorage
+const user = JSON.parse(localStorage.getItem("user"));
 const chemistId = user?._id;
-  const handleSubmit = async (e) => {
-    e.preventDefault();
 
-    if (!shaNumber || !form.medicineId || !form.quantity) {
-      toast.error("All fields are required");
-      return;
-    }
+// ✅ Handle submit
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    try {
-  setLoading(true);
-  const { data } = await api.post("/chemist/dispense", {
-  patientId,
-  medicineId,
-  quantity,
-  chemistId   
-});
+  if (!shaNumber || !form.medicineId || !form.quantity) {
+    toast.error("All fields are required");
+    return;
+  }
 
+  try {
+    setLoading(true);
 
-  toast.success(data.message || "Medicine dispensed successfully!");
+    // 👇 Corrected body
+    const { data } = await api.post("/chemist/dispense", {
+      patientId: patient?._id,
+      medicineId: form.medicineId,
+      quantity: form.quantity,
+      chemistId: chemistId,
+    });
 
-  // update stock
-  setMedicines((prev) =>
-    prev.map((m) =>
-      m._id === form.medicineId
-        ? { ...m, stock: m.stock - Number(form.quantity) }
-        : m
-    )
-  );
+    toast.success(data.message || "Medicine dispensed successfully!");
 
-  // reset form
-  setForm({ medicineId: "", quantity: "" });
+    // update stock
+    setMedicines((prev) =>
+      prev.map((m) =>
+        m._id === form.medicineId
+          ? { ...m, stock: m.stock - Number(form.quantity) }
+          : m
+      )
+    );
 
-  // 🚀 ADD THIS — redirect to CHV assignment page
-  navigate("/chemist/assign-chv", {
-    state: { patient }
-  });
+    // reset form
+    setForm({ medicineId: "", quantity: "" });
 
-} catch (error) {
-  console.error("Error dispensing medicine:", error);
-  toast.error(
-    error.response?.data?.message || "Failed to dispense medicine"
-  );
-} finally {
-  setLoading(false);
-}
-  };
+    // redirect to CHV assignment
+    navigate("/chemist/assign-chv", {
+      state: { patient },
+    });
+
+  } catch (error) {
+    console.error("Error dispensing medicine:", error);
+    toast.error(
+      error.response?.data?.message || "Failed to dispense medicine"
+    );
+  } finally {
+    setLoading(false);
+  }
+};
+
+ 
 
   const handleAddMedicine = () => {
     navigate("/chemist/add-medicine", {
