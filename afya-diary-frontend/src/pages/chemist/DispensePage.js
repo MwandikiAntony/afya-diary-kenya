@@ -9,6 +9,8 @@ import toast from "react-hot-toast";
 export default function DispensePage() {
   const location = useLocation();
   const navigate = useNavigate();
+    const user = JSON.parse(localStorage.getItem("user"));
+const chemistId = user?._id;
 
   const patient = location.state?.patient;
   const [shaNumber, setShaNumber] = useState(patient?.shaNumber || ""); // ✅ dynamic + editable
@@ -67,10 +69,12 @@ export default function DispensePage() {
     try {
   setLoading(true);
   const { data } = await api.post("/chemist/dispense", {
-    shaNumber,
-    medicineId: form.medicineId,
-    quantity: form.quantity,
-  });
+  patientId,
+  medicineId,
+  quantity,
+  chemistId   
+});
+
 
   toast.success(data.message || "Medicine dispensed successfully!");
 
@@ -106,6 +110,9 @@ export default function DispensePage() {
       state: { fromDispense: true, patient },
     });
   };
+
+
+
 
   return (
     <ChemistLayout>
