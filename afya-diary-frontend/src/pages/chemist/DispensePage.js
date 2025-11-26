@@ -58,9 +58,10 @@ export default function DispensePage() {
   
 // user data from localStorage
 const user = JSON.parse(localStorage.getItem("user"));
-const chemistId = user?._id;
+const chemistId = user?._id || user?.id;
 
-// ✅ Handle submit
+console.log("Chemist ID:", chemistId);  // <-- add this debug line
+
 const handleSubmit = async (e) => {
   e.preventDefault();
 
@@ -72,42 +73,31 @@ const handleSubmit = async (e) => {
   try {
     setLoading(true);
 
-    // 👇 Corrected body
+    console.log("Sending to backend:", {
+      patientId: patient?._id,
+      medicineId: form.medicineId,
+      quantity: form.quantity,
+      chemistId
+    });
+
     const { data } = await api.post("/chemist/dispense", {
       patientId: patient?._id,
       medicineId: form.medicineId,
       quantity: form.quantity,
-      chemistId: chemistId,
+      chemistId
     });
 
     toast.success(data.message || "Medicine dispensed successfully!");
-
-    // update stock
-    setMedicines((prev) =>
-      prev.map((m) =>
-        m._id === form.medicineId
-          ? { ...m, stock: m.stock - Number(form.quantity) }
-          : m
-      )
-    );
-
-    // reset form
-    setForm({ medicineId: "", quantity: "" });
-
-    // redirect to CHV assignment
-    navigate("/chemist/assign-chv", {
-      state: { patient },
-    });
+    navigate("/chemist/assign-chv", { state: { patient } });
 
   } catch (error) {
     console.error("Error dispensing medicine:", error);
-    toast.error(
-      error.response?.data?.message || "Failed to dispense medicine"
-    );
+    toast.error(error.response?.data?.message || "Failed to dispense medicine");
   } finally {
     setLoading(false);
   }
 };
+
 
  
 
