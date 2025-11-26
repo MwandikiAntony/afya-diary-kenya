@@ -37,7 +37,7 @@ router.get('/dispenses', authMiddleware, async (req, res) => {
 // Fetch all CHVs
 router.get('/chvs', authMiddleware, async (req, res) => {
   try {
-    const chvs = await Chv.find().select('-password'); // exclude password
+    const chvs = await Chv.find().select('-password'); 
     res.json(chvs);
   } catch (err) {
     console.error('Error fetching CHVs:', err);
