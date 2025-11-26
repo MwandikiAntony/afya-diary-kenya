@@ -32,6 +32,7 @@ import DispensePage from "./pages/chemist/DispensePage";
 import MentalHealthTips from "./components/AIHelper/MentalHealthTips";
 import AIChat from "./components/AIHelper/AIChat";
 import MoodTracker from "./components/AIHelper/MoodTracker";
+import AssignCHVPage from "./pages/chemist/AssignCHVPage";
 
 export default function App() {
   return (
@@ -96,6 +97,8 @@ export default function App() {
           path="/chemist-dashboard"
           element={<ProtectedRoute role="chemist"><ChemistDashboard /></ProtectedRoute>}
         />
+        <Route path="/chemist/assign-chv" element={<ProtectedRoute role="chemist"><AssignCHVPage/></ProtectedRoute>} />
+
         <Route path="/chemist-scan"
         element={<ProtectedRoute role="chemist"><ChemistScan/></ProtectedRoute>}
         />
