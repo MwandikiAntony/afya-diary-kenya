@@ -1,3 +1,6 @@
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
+
 const authMiddleware = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -20,15 +23,12 @@ const authMiddleware = async (req, res, next) => {
     const user = await User.findById(payload.userId).select('-passwordHash');
     if (!user) return res.status(401).json({ message: 'User not found' });
 
-    // Store full user object
-    req.user = user;
-
+    req.user = user; 
     next();
   } catch (err) {
     console.error('authMiddleware error', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
-
 
 module.exports = authMiddleware;
