@@ -11,7 +11,7 @@ const {
 } = require("../controllers/patientController");
 const Patient = require("../models/Patient")
 
-// All routes require authentication
+
 router.get("/", authMiddleware, listPatients);
 router.post("/", authMiddleware, createPatient);
 router.put("/:id", authMiddleware, updatePatient);
@@ -27,7 +27,7 @@ router.get("/search/:shaNumber", async (req, res) => {
       return res.status(404).json({ message: "Patient not found" });
     }
 
-    return res.status(200).json(patient); // ✅ always send JSON with 200 OK
+    return res.status(200).json(patient); 
   } catch (error) {
     console.error("Search error:", error);
     res.status(500).json({ message: "Server error" });
