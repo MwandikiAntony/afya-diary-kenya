@@ -1,4 +1,3 @@
-// src/pages/Prescriptions.js
 import React, { useEffect, useState } from "react";
 import PatientLayout from "../components/PatientLayout";
 import api from "../utils/api";
@@ -12,7 +11,7 @@ export default function Prescriptions() {
     try {
       const { data } = await api.get("/prescriptions");
 
-      // ✅ Ensure we always set an array — even if backend returns object or something else
+      //  Ensure we always set an array — even if backend returns object or something else
       if (Array.isArray(data)) {
         setPrescriptions(data);
       } else if (Array.isArray(data.prescriptions)) {

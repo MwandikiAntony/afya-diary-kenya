@@ -40,7 +40,7 @@ export default function Register() {
     if (role === "chemist") {
       data.licenseNumber = licenseNumber;
       data.pharmacyName = pharmacyName;
-      // Optionally include patient info if needed
+     
       // data.age = age;
       // data.gender = gender;
       // data.shaNumber = shaNumber;

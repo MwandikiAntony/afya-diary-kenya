@@ -1,4 +1,3 @@
-// src/pages/Reminders.js
 import React, { useEffect, useState } from "react";
 import PatientLayout from "../components/PatientLayout";
 import api from "../utils/api";

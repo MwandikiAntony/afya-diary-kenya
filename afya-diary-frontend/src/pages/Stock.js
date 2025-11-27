@@ -6,7 +6,7 @@ function Stock() {
   const [name, setName] = useState("");
   const [quantity, setQuantity] = useState("");
 
-  // ✅ Fetch stock on load
+  // Fetch stock on load
   useEffect(() => {
     const fetchStock = async () => {
       try {
@@ -20,7 +20,7 @@ function Stock() {
     fetchStock();
   }, []);
 
-  // ✅ Add medicine
+  // Add medicine
   const handleAddMedicine = async (e) => {
     e.preventDefault();
     try {
@@ -33,7 +33,7 @@ function Stock() {
     }
   };
 
-  // ✅ Update quantity
+  // Update quantity
   const handleUpdate = async (id) => {
     const newQty = prompt("Enter new quantity:");
     if (!newQty) return;
@@ -48,7 +48,7 @@ function Stock() {
     }
   };
 
-  // ✅ Delete medicine
+  // Delete medicine
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure?")) return;
 

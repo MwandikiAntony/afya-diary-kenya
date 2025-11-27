@@ -6,7 +6,7 @@ import toast from "react-hot-toast";
 export default function Verify() {
   const location = useLocation();
   const navigate = useNavigate();
-  const state = location.state || {}; // ✅ define state
+  const state = location.state || {}; 
   const phone = state.phone || "";
   const role = state.role || "patient";
   const password = state.password;
@@ -14,7 +14,7 @@ export default function Verify() {
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
-  const [timer, setTimer] = useState(60); // ⏱ countdown timer
+  const [timer, setTimer] = useState(60); // This a countdown timer
 
   // Start countdown timer
   useEffect(() => {
@@ -119,7 +119,7 @@ const { data } = await api.post(`/auth${endpoint}`, {
           </button>
         </form>
 
-        {/* ⏱ Resend OTP Section */}
+        {/* Resend OTP Section */}
         <div className="mt-4 text-center text-sm">
           {timer > 0 ? (
             <p className="text-gray-500">

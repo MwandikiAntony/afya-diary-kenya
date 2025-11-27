@@ -1,4 +1,3 @@
-// src/pages/Records.js
 import React, { useEffect, useState } from "react";
 import PatientLayout from "../components/PatientLayout";
 import api from "../utils/api";
@@ -12,7 +11,7 @@ export default function Records() {
 
   const load = async () => {
     try {
-      const { data } = await api.get("/records/mine"); // only patient's own records
+      const { data } = await api.get("/records/mine"); // Ensure only patient's own records
       setRecords(data || []);
     } catch (err) {
       console.error(err);

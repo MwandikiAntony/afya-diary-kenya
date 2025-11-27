@@ -1,4 +1,3 @@
-// src/pages/VerifyOTP.js
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import api from "../utils/api";
@@ -27,8 +26,8 @@ const { data } = await api.post(`/auth${endpoint}`, {
   password: state.password,
   dob: state.dob,
   gender: state.gender,
-  licenseNumber: state.licenseNumber,   // ✅ add this
-  pharmacyName: state.pharmacyName,     // ✅ add this
+  licenseNumber: state.licenseNumber,   
+  pharmacyName: state.pharmacyName,     
 });
 
 
