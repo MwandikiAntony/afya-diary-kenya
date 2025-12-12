@@ -1,6 +1,6 @@
 # Afya Diary Kenya
 
-A digital health management platform connecting Patients, Community Health Volunteers (CHVs) and Chemists across Kenya.
+This is a digital health management platform connecting Patients, Community Health Volunteers (CHVs) and Chemists across Kenya.
 
 ---
 ## Live Demo
