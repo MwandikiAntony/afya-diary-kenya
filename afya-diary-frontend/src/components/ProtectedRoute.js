@@ -2,7 +2,14 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
 
+const DEMO_MODE = true;
+
 export default function ProtectedRoute({ children, role }) {
+  // 🚀 Demo mode bypass (no login required)
+  if (DEMO_MODE) {
+    return children;
+  }
+
   let token = null;
   let user = null;
 

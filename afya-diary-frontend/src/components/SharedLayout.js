@@ -1,15 +1,27 @@
-import React from "react"; 
+import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Home, Heart, MessageSquare } from "lucide-react";
+
+const DEMO_MODE = true;
 
 export default function SharedLayout({ children, role }) {
   const location = useLocation();
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user"));
-const dashboardRole = role || user?.role;
+
+  const user = DEMO_MODE
+    ? { role: "patient" }
+    : JSON.parse(localStorage.getItem("user"));
+
+  const dashboardRole = role || user?.role;
 
   const handleLogout = () => {
+    if (DEMO_MODE) {
+      navigate(getDashboardPath(dashboardRole));
+      return;
+    }
+
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     navigate("/login");
   };
 
@@ -28,21 +40,36 @@ const dashboardRole = role || user?.role;
   };
 
   // Role-based links
- const links = [
-  { to: getDashboardPath(dashboardRole), label: "Dashboard", icon: <Home size={20} /> },
-  { to: "/ai-chat", label: "AI Chat", icon: <MessageSquare size={20} /> },
-  { to: "/mental-health/tips", label: "Mental Health Tips", icon: <Heart size={20} /> },
-  { to: "/mood-tracker", label: "Mood Tracker", icon: <Heart size={20} /> },
-];
-
+  const links = [
+    {
+      to: getDashboardPath(dashboardRole),
+      label: "Dashboard",
+      icon: <Home size={20} />,
+    },
+    {
+      to: "/ai-chat",
+      label: "AI Chat",
+      icon: <MessageSquare size={20} />,
+    },
+    {
+      to: "/mental-health/tips",
+      label: "Mental Health Tips",
+      icon: <Heart size={20} />,
+    },
+    {
+      to: "/mood-tracker",
+      label: "Mood Tracker",
+      icon: <Heart size={20} />,
+    },
+  ];
 
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
       <div className="w-64 bg-[#0D47A1] text-white flex flex-col">
         <div className="p-6 font-bold text-2xl border-b border-blue-900">
-  {dashboardRole?.toUpperCase() || "Afya Panel"}
-       </div>
+          {dashboardRole?.toUpperCase() || "AFYA PANEL"}
+        </div>
 
         <nav className="flex-1 p-4 space-y-2">
           {links.map((link) => (
@@ -60,12 +87,20 @@ const dashboardRole = role || user?.role;
             </Link>
           ))}
 
-          <button
-            onClick={handleLogout}
-            className="mt-4 bg-red-600 hover:bg-red-700 py-2 px-3 rounded font-semibold transition"
-          >
-            🚪 Logout
-          </button>
+          {!DEMO_MODE && (
+            <button
+              onClick={handleLogout}
+              className="mt-4 bg-red-600 hover:bg-red-700 py-2 px-3 rounded font-semibold transition"
+            >
+              🚪 Logout
+            </button>
+          )}
+
+          {DEMO_MODE && (
+            <div className="mt-4 bg-green-600 py-2 px-3 rounded text-sm font-medium text-center">
+              Demo Mode Enabled
+            </div>
+          )}
         </nav>
       </div>
 

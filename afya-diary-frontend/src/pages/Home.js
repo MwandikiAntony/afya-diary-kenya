@@ -10,6 +10,7 @@ export default function Home() {
   const FooterSection = ({ title, links }) => {
   const [open, setOpen] = useState(false);
   
+  
 
   return (
     <div className="border-b border-gray-300 md:border-none pb-4 md:pb-0">
@@ -43,6 +44,7 @@ export default function Home() {
 };
 
   const [menuOpen, setMenuOpen] = useState(false);
+  const DEMO_MODE = true;
 
 
 
@@ -56,7 +58,7 @@ export default function Home() {
     AfyaDiary <span className="text-green-600">Kenya</span>
   </h1>
 
-  {/* Desktop Links */}
+  {/* Desktop Links
   <div className="hidden md:flex items-center gap-6 font-medium">
     <Link
       to="/"
@@ -77,7 +79,41 @@ export default function Home() {
   Sign Up
 </Link>
 
-  </div>
+  </div> */}
+  
+  <div className="hidden md:flex items-center gap-6 font-medium">
+  <Link
+    to="/"
+    className="text-gray-700 hover:text-green-600 transition-colors duration-200"
+  >
+    Home
+  </Link>
+
+  {DEMO_MODE ? (
+    <Link
+      to="/dashboard"
+      className="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+    >
+      Open Demo
+    </Link>
+  ) : (
+    <>
+      <Link
+        to="/login"
+        className="text-gray-700 hover:text-green-600 transition-colors duration-200"
+      >
+        Login
+      </Link>
+
+      <Link
+        to="/register"
+        className="text-gray-700 hover:text-green-600 transition-colors duration-200"
+      >
+        Sign Up
+      </Link>
+    </>
+  )}
+</div>
 
   {/* Mobile Menu Button */}
   <button
@@ -118,7 +154,7 @@ export default function Home() {
   </button>
 
   {/* Mobile Dropdown Menu */}
-  {menuOpen && (
+  {/* {menuOpen && (
     <div className="absolute top-16 left-0 w-full bg-white text-gray-800 shadow-lg flex flex-col items-center gap-4 py-6 md:hidden">
       <Link
         to="/"
@@ -142,7 +178,47 @@ export default function Home() {
         Sign Up
       </Link>
     </div>
-  )}
+  )} */}
+
+  {menuOpen && (
+  <div className="absolute top-16 left-0 w-full bg-white text-gray-800 shadow-lg flex flex-col items-center gap-4 py-6 md:hidden">
+    <Link
+      to="/"
+      className="hover:text-green-600 transition-colors duration-200"
+      onClick={() => setMenuOpen(false)}
+    >
+      Home
+    </Link>
+
+    {DEMO_MODE ? (
+      <Link
+        to="/dashboard"
+        className="hover:text-green-600 transition-colors duration-200 font-semibold"
+        onClick={() => setMenuOpen(false)}
+      >
+        Open Demo
+      </Link>
+    ) : (
+      <>
+        <Link
+          to="/login"
+          className="hover:text-green-600 transition-colors duration-200"
+          onClick={() => setMenuOpen(false)}
+        >
+          Login
+        </Link>
+
+        <Link
+          to="/register"
+          className="hover:text-green-600 transition-colors duration-200"
+          onClick={() => setMenuOpen(false)}
+        >
+          Sign Up
+        </Link>
+      </>
+    )}
+  </div>
+)}
 </nav>
 
 
@@ -172,7 +248,8 @@ export default function Home() {
     <p className="text-lg md:text-xl mb-10 text-gray-200 leading-relaxed">
       Manage patients, track appointments, store records, and never miss important reminders.
     </p>
-    <div className="flex gap-6">
+    {/* buttons */}
+    {/* <div className="flex gap-6">
       <Link
         to="/login"
         className="px-8 py-3 bg-blue-700 text-white rounded-lg font-medium shadow-md hover:bg-blue-800 hover:scale-105 transition-all duration-300"
@@ -185,7 +262,35 @@ export default function Home() {
       >
         Sign Up
       </Link>
-    </div>
+    </div> */}
+
+    <div className="flex flex-wrap gap-4">
+
+  {/* Patient Dashboard */}
+  <Link
+    to="/dashboard"
+    className="px-6 py-3 bg-green-600 text-white rounded-lg font-medium shadow hover:bg-green-700 transition"
+  >
+    Patient Dashboard
+  </Link>
+
+  {/* CHV Dashboard */}
+  <Link
+    to="/chv-dashboard"
+    className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium shadow hover:bg-blue-700 transition"
+  >
+    CHV Dashboard
+  </Link>
+
+  {/* Chemist Dashboard */}
+  <Link
+    to="/chemist-dashboard"
+    className="px-6 py-3 bg-purple-600 text-white rounded-lg font-medium shadow hover:bg-purple-700 transition"
+  >
+    Chemist Dashboard
+  </Link>
+
+</div>
   </div>
 </header>
 {/* Mental Health*/}
@@ -197,12 +302,19 @@ export default function Home() {
     Get mental health support and talk with our AI Wellness Assistant for free.
   </p>
   <div className="flex justify-center gap-4">
-    <a href="/register" className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700">
+    {/* <a href="/register" className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700">
       Get Help Now
     </a>
     <a href="/learn-more" className="border border-blue-600 text-blue-600 px-6 py-3 rounded-lg hover:bg-blue-50">
       Learn More
-    </a>
+    </a> */}
+
+    <a
+  href={DEMO_MODE ? "/dashboard" : "/register"}
+  className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700"
+>
+  {DEMO_MODE ? "Open Demo" : "Get Help Now"}
+</a>
   </div>
 </section>
 
@@ -330,12 +442,19 @@ export default function Home() {
        to manage your health records, appointments, and wellness journey all in one place.
     </p>
 
-    <Link
+    {/* <Link
       to="/register"
       className="inline-block px-10 py-4 bg-green-500 text-white font-semibold rounded-full shadow-lg hover:bg-green-400 hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 ease-out"
     >
       Get Started
-    </Link>
+    </Link> */}
+
+    <Link
+  to={DEMO_MODE ? "/dashboard" : "/register"}
+  className="inline-block px-10 py-4 bg-green-500 text-white font-semibold rounded-full shadow-lg hover:bg-green-400 hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 ease-out"
+>
+  {DEMO_MODE ? "Open Demo Dashboard" : "Get Started"}
+</Link>
 
   </div>
 </section>
