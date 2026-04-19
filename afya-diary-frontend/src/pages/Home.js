@@ -551,11 +551,11 @@ export default function Home() {
 </div>
     {/* Social Media Icons */}
     <div className="flex justify-center gap-6 my-8 text-lg text-gray-700">
-      <a href="#" className="hover:text-blue-600"><FaFacebookF /></a>
-      <a href="#" className="hover:text-blue-400"><FaTwitter /></a>
-      <a href="#" className="hover:text-blue-700"><FaLinkedinIn /></a>
-      <a href="#" className="hover:text-pink-500"><FaInstagram /></a>
-    </div>
+        <button className="hover:text-blue-600"><FaFacebookF /></button>
+        <button className="hover:text-blue-400"><FaTwitter /></button>
+        <button className="hover:text-blue-700"><FaLinkedinIn /></button>
+        <button className="hover:text-pink-500"><FaInstagram /></button>
+      </div>
 
 
     {/* Legal Disclaimer */}

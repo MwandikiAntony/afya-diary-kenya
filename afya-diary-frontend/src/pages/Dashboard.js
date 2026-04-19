@@ -94,6 +94,8 @@ export default function Dashboard() {
           </Link>
         </div>
       </section>
+      <MentalHealthCard />
+<MoodTracker />
     </PatientLayout>
   );
 }
