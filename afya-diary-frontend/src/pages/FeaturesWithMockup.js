@@ -74,10 +74,10 @@ export default function FeaturesWithMockup() {
           variants={itemVariants}
         >
           <img
-            src="/images/Mobilemoc.png"
-            alt="AfyaDiary Kenya mobile app"
-            className="relative w-64 md:w-80 lg:w-96 drop-shadow-2xl transform md:-translate-y-10 hover:scale-105 transition-transform duration-500 ease-out"
-          />
+              src="/images/Mobilemoc.png"
+              alt="AfyaDiary Kenya mobile app"
+              className="w-full max-w-[300px] md:max-w-[360px] lg:max-w-[420px] mx-auto drop-shadow-2xl transform md:-translate-y-10 hover:scale-105 transition-transform duration-500 ease-out"
+            />
         </motion.div>
       </div>
 

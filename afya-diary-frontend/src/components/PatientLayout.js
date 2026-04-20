@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, ClipboardList, Bell, User } from "lucide-react";
+import { Home, ClipboardList, Bell, User, Brain } from "lucide-react";
 
 export default function PatientLayout({ children }) {
   const location = useLocation();
@@ -11,13 +11,15 @@ export default function PatientLayout({ children }) {
     { to: "/appointments", label: "Appointments", icon: <ClipboardList size={20} /> },
     { to: "/notifications", label: "Notifications", icon: <Bell size={20} /> },
     { to: "/profile", label: "Profile", icon: <User size={20} /> },
-    { to: "/ai-helper", label: "Mental AI", icon: <User size={20} /> },
-    { to: "/mental-health/tips", label: "Health Tips", icon: <User size={20} /> },
-    { to: "/mood-tracker", label: "Mood Tracker", icon: <User size={20} /> },
+
+    // ✅ FIXED: AI routes properly separated or keep global but NOT duplicated
+    { to: "/ai-chat", label: "Mental AI", icon: <Brain size={20} /> },
+    { to: "/mental-health/tips", label: "Health Tips", icon: <Brain size={20} /> },
+    { to: "/mood-tracker", label: "Mood Tracker", icon: <Brain size={20} /> },
   ];
 
   const handleLogout = () => {
-    localStorage.removeItem("token"); // clear auth token or session
+    localStorage.removeItem("token");
     navigate("/login");
   };
 
@@ -28,6 +30,7 @@ export default function PatientLayout({ children }) {
         <div className="p-6 font-bold text-2xl border-b border-green-800">
           Patient Panel
         </div>
+
         <nav className="flex-1 p-4 space-y-2">
           {links.map((link) => (
             <Link
@@ -36,7 +39,7 @@ export default function PatientLayout({ children }) {
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition ${
                 location.pathname === link.to
                   ? "bg-green-800 text-white"
-                  : "hover:bg-green-700 hover:text-white"
+                  : "hover:bg-green-700"
               }`}
             >
               {link.icon}
@@ -44,18 +47,19 @@ export default function PatientLayout({ children }) {
             </Link>
           ))}
 
-          {/* Logout button */}
           <button
-          onClick={handleLogout}
-          className="mt-4 bg-red-600 hover:bg-red-700 py-2 px-3 rounded font-semibold transition"
-        >
-          🚪 Logout
-        </button>
+            onClick={handleLogout}
+            className="mt-4 bg-red-600 hover:bg-red-700 py-2 px-3 rounded font-semibold"
+          >
+            🚪 Logout
+          </button>
         </nav>
       </div>
 
       {/* Main content */}
-      <div className="flex-1 overflow-y-auto">{children}</div>
+      <div className="flex-1 overflow-y-auto">
+        {children}
+      </div>
     </div>
   );
 }
