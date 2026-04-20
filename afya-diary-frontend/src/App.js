@@ -115,7 +115,9 @@ export default function App() {
         <Route path= "/chemist/add-patient"
   element= {<AddPatientPage/>} />,
 
-      
+      <Route path="/ai-chat" element={<AIChat />} />
+      <Route path="/mental-health/tips" element={<MentalHealthTips />} />
+    <Route path="/mood-tracker" element={<MoodTracker />} />
 
 
 
