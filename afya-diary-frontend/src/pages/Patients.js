@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import api from "../utils/api";
-import Layout from "../components/Layout";
+import Layout from "../components/PublicLayout";
 import toast from "react-hot-toast";
 
 export default function Patients() {
