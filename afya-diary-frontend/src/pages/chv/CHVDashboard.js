@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CHVLayout from "../../components/CHVLayout";
 import api from "../../utils/api";
-import toast from "react-hot-toast";
 
 const C = {
   pur900:"#4A148C",pur800:"#6A1B9A",pur600:"#8E24AA",pur400:"#CE93D8",pur100:"#F3E5F5",pur50:"#faf5ff",

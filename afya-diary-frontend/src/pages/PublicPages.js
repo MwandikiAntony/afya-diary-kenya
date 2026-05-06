@@ -280,6 +280,14 @@ export function FAQ() {
    MOBILE APP PAGE
 ════════════════════════════════════════ */
 export function MobileApp() {
+  const appBtnStyle = {
+    display: "flex", alignItems: "center", gap: 10,
+    background: C.sl900, color: "#fff", padding: "12px 20px",
+    borderRadius: 10, border: "1px solid rgba(255,255,255,.15)",
+    cursor: "pointer", fontFamily: "'DM Sans',system-ui,sans-serif",
+    transition: "all .2s",
+  };
+
   return (
     <PublicLayout>
       <section style={{ background: `linear-gradient(135deg,#022c22,${C.em900})`, padding: "80px 0 0", overflow: "hidden" }}>
@@ -295,14 +303,21 @@ export function MobileApp() {
                 The AfyaDiary Kenya mobile app brings your health records, medication reminders, and AI wellness tools to your smartphone, even in areas with slow internet.
               </p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
-                <a href="#" style={{ display: "flex", alignItems: "center", gap: 10, background: C.sl900, color: "#fff", padding: "12px 20px", borderRadius: 10, textDecoration: "none", border: "1px solid rgba(255,255,255,.15)", transition: "all .2s" }}>
+                {/* Replaced <a href="#"> with <button> to satisfy jsx-a11y/anchor-is-valid */}
+                <button style={appBtnStyle} onClick={() => {}} aria-label="Get it on Google Play (coming soon)">
                   <span style={{ fontSize: "1.5rem" }}>🤖</span>
-                  <div><div style={{ fontSize: ".6rem", opacity: .7, textTransform: "uppercase", letterSpacing: ".06em" }}>Get it on</div><div style={{ fontSize: ".95rem", fontWeight: 600 }}>Google Play</div></div>
-                </a>
-                <a href="#" style={{ display: "flex", alignItems: "center", gap: 10, background: C.sl900, color: "#fff", padding: "12px 20px", borderRadius: 10, textDecoration: "none", border: "1px solid rgba(255,255,255,.15)", transition: "all .2s" }}>
+                  <div>
+                    <div style={{ fontSize: ".6rem", opacity: .7, textTransform: "uppercase", letterSpacing: ".06em" }}>Get it on</div>
+                    <div style={{ fontSize: ".95rem", fontWeight: 600 }}>Google Play</div>
+                  </div>
+                </button>
+                <button style={appBtnStyle} onClick={() => {}} aria-label="Download on the App Store (coming soon)">
                   <span style={{ fontSize: "1.5rem" }}>🍎</span>
-                  <div><div style={{ fontSize: ".6rem", opacity: .7, textTransform: "uppercase", letterSpacing: ".06em" }}>Download on the</div><div style={{ fontSize: ".95rem", fontWeight: 600 }}>App Store</div></div>
-                </a>
+                  <div>
+                    <div style={{ fontSize: ".6rem", opacity: .7, textTransform: "uppercase", letterSpacing: ".06em" }}>Download on the</div>
+                    <div style={{ fontSize: ".95rem", fontWeight: 600 }}>App Store</div>
+                  </div>
+                </button>
               </div>
             </div>
             <div style={{ alignSelf: "flex-end" }}>

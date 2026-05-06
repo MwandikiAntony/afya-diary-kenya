@@ -37,13 +37,6 @@ export default function Login() {
     } finally { setLoading(false); }
   };
 
-  const inp = (focused) => ({
-    width:"100%", padding:"11px 14px", borderRadius:9,
-    border:`1.5px solid ${focused ? C.em500 : C.sl200}`,
-    fontFamily:"'DM Sans',system-ui,sans-serif", fontSize:".875rem", color:C.sl900,
-    outline:"none", transition:"all .15s", background:C.white,
-    boxShadow: focused ? "0 0 0 3px rgba(16,185,129,.1)" : "none",
-  });
 
   return (
     <>

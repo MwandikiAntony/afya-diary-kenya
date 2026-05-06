@@ -42,7 +42,7 @@ export default function Privacy() {
               <div style={{ fontSize: ".72rem", fontWeight: 600, color: C.em600, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 14 }}>Contents</div>
               {sections.map(({ id, title }) => (
                 <a key={id} href={`#${id}`} style={{
-                  display: "block", color: C.sl600, fontSize: ".8rem",
+                  display: "block", fontSize: ".8rem",
                   padding: "5px 8px", borderRadius: 6, textDecoration: "none",
                   transition: "all .15s", borderLeft: `2px solid ${active === id ? C.em500 : "transparent"}`,
                   color: active === id ? C.em600 : C.sl600, fontWeight: active === id ? 500 : 400,

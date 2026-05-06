@@ -1,6 +1,6 @@
 import React from "react"; 
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Home, Heart, MessageSquare } from "lucide-react";
+import { Home } from "lucide-react";
 
 export default function SharedLayout({ children, role }) {
   const location = useLocation();

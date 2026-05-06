@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import api from "../utils/api";
 import toast from "react-hot-toast";
@@ -15,10 +15,14 @@ const ROLE_COLOR = { patient: C.em600, chv: C.pur600, chemist: C.sky600 };
 export default function Verify() {
   const location = useLocation();
   const navigate  = useNavigate();
-  const state     = location.state || {};
+
+  // Wrap location.state in useMemo so its reference stays stable across renders,
+  // preventing useCallback's dependency array from changing on every render.
+  const state = useMemo(() => location.state || {}, [location.state]);
+
   const { phone, role = "patient", password } = state;
 
-  const [digits, setDigits]   = useState(["","","","","",""]);
+  const [digits, setDigits]     = useState(["","","","","",""]);
   const [loading, setLoading]   = useState(false);
   const [resending, setResending] = useState(false);
   const [timer, setTimer]       = useState(60);
