@@ -203,11 +203,7 @@ export default function Home() {
 
         <div style={{position:"relative",zIndex:2,flex:1,display:"flex",alignItems:"center",maxWidth:1200,margin:"0 auto",width:"100%",padding:"clamp(48px,8vw,100px) clamp(16px,4vw,52px) clamp(48px,6vw,80px)"}}>
           <div style={{maxWidth:580}}>
-            <div className="hero-fade" style={{display:"inline-flex",alignItems:"center",gap:8,background:"rgba(52,211,153,.1)",border:"1px solid rgba(52,211,153,.28)",borderRadius:999,padding:"5px 14px",marginBottom:22}}>
-              <span style={{width:7,height:7,borderRadius:"50%",background:C.em400,animation:"pulseDot 2s infinite",display:"inline-block"}}/>
-              <span style={{color:C.em400,fontSize:".7rem",fontWeight:600,letterSpacing:".08em",textTransform:"uppercase"}}>Kenya's Digital Health Platform</span>
-            </div>
-
+        
             <h1 className="hero-fade d1" style={{fontFamily:"'Fraunces',Georgia,serif",fontSize:"clamp(2.1rem,5vw,3.8rem)",fontWeight:300,color:"#fff",lineHeight:1.1,marginBottom:20,letterSpacing:"-.02em"}}>
               Trusted Medical Care<br/>
               <em style={{fontStyle:"italic",color:C.em400}}>For Every Kenyan.</em>
