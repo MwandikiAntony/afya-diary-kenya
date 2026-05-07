@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import PatientLayout from "../components/PatientLayout";
-import { PageHeader, Card, Btn, Inp, Badge, EmptyState, Table, TR, TD, Modal, FONTS, BASE_STYLES } from "../components/Shared/UI";
+import { PageHeader, Card, Btn, Inp, Badge, EmptyState, Modal, FONTS, BASE_STYLES } from "../components/Shared/UI";
 import api from "../utils/api";
 import toast from "react-hot-toast";
 
