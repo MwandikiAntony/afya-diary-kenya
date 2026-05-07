@@ -1,183 +1,159 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import ChemistLayout from "../../components/ChemistLayout";
-import { Button } from "../../components/ui/button";
-import { Input } from "../../components/ui/input";
+import { PageHeader, Card, Btn, Inp, FONTS, BASE_STYLES } from "../../components/Shared/UI";
 import api from "../../utils/api";
 import toast from "react-hot-toast";
 
 export default function DispensePage() {
   const location = useLocation();
   const navigate = useNavigate();
-
-  const patient = location.state?.patient;
-  const [shaNumber, setShaNumber] = useState(patient?.shaNumber || ""); // ✅ dynamic + editable
+  const patient  = location.state?.patient;
 
   const [medicines, setMedicines] = useState([]);
-  const [form, setForm] = useState({
-    medicineId: "",
-    quantity: "",
-  });
+  const [form, setForm]     = useState({ medicineId: "", quantity: "" });
+  const [shaNumber, setShaNumber] = useState(patient?.shaNumber || "");
   const [loading, setLoading] = useState(false);
 
-  // ✅ Fetch medicines
-  const fetchMedicines = async (selectNewMedicineId = null) => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await api.get(`/chemist/medicines?ts=${Date.now()}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      console.log("Medicines API response:", response.data);
-      const list = response.data || [];
-      setMedicines(list);
-
-      if (selectNewMedicineId) {
-        setForm((prev) => ({ ...prev, medicineId: selectNewMedicineId }));
-      }
-    } catch (error) {
-      console.error("Error fetching medicines:", error);
-      toast.error("Failed to load medicines list");
-    }
-  };
-
   useEffect(() => {
-    const newMedicineId = location.state?.newMedicineId || null;
-    fetchMedicines(newMedicineId);
+    api.get(`/chemist/medicines?ts=${Date.now()}`)
+      .then(({ data }) => setMedicines(data || []))
+      .catch(() => toast.error("Failed to load medicines"));
+  }, []);
 
-    if (location.state?.refetch || newMedicineId) {
-      navigate(location.pathname, { replace: true, state: { patient } });
+  const handleSubmit = async e => {
+    e.preventDefault();
+    if (!form.medicineId || !form.quantity) {
+      toast.error("Select a medicine and enter quantity");
+      return;
     }
-  }, [navigate, patient, location.pathname, location.state]);
-
-  // ✅ Handle form input
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  
-// user data from localStorage
-const user = JSON.parse(localStorage.getItem("user"));
-const chemistId = user?._id || user?.id;
-
-console.log("Chemist ID:", chemistId);  // <-- add this debug line
-
-const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  if (!shaNumber || !form.medicineId || !form.quantity) {
-    toast.error("All fields are required");
-    return;
-  }
-
-  try {
     setLoading(true);
-
-    console.log("Sending to backend:", {
-      patientId: patient?._id,
-      medicineId: form.medicineId,
-      quantity: form.quantity,
-    });
-
-    const { data } = await api.post("/chemist/dispense", {
-      patientId: patient?._id,
-      medicineId: form.medicineId,
-      quantity: form.quantity,
-    });
-
-    toast.success(data.message || "Medicine dispensed successfully!");
-    navigate("/chemist/assign-chv", { state: { patient } });
-
-  } catch (error) {
-    console.error("Error dispensing medicine:", error);
-    toast.error(error.response?.data?.message || "Failed to dispense medicine");
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-
- 
-
-  const handleAddMedicine = () => {
-    navigate("/chemist/add-medicine", {
-      state: { fromDispense: true, patient },
-    });
+    try {
+      await api.post("/chemist/dispense", {
+        patientId: patient?._id,
+        medicineId: form.medicineId,
+        quantity: Number(form.quantity),
+      });
+      toast.success("Medicine dispensed successfully");
+      navigate("/chemist/assign-chv", { state: { patient } });
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to dispense medicine");
+    } finally {
+      setLoading(false);
+    }
   };
 
-
-
+  const selected = medicines.find(m => m._id === form.medicineId);
 
   return (
     <ChemistLayout>
-      <div className="p-6 max-w-md mx-auto">
-        <h1 className="text-2xl font-semibold mb-4">💊 Dispense Medicine</h1>
+      <link href={FONTS} rel="stylesheet" />
+      <style>{BASE_STYLES}{`
+        .dispense-sel {
+          width: 100%; padding: 10px 13px; border-radius: 8px;
+          border: 1.5px solid #e2e8f0; font-family: 'DM Sans',system-ui,sans-serif;
+          font-size: .875rem; color: #0f172a; outline: none; appearance: none;
+          background: #fff; cursor: pointer;
+        }
+        .dispense-sel:focus { border-color: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,.1); }
+      `}</style>
 
-        {/* ✅ Patient Info or Manual SHA Entry */}
+      <PageHeader
+        eyebrow="Chemist Portal"
+        title="Dispense Medicine"
+        subtitle="Record medicine dispensed to a patient."
+      />
+
+      <div style={{ maxWidth: 520 }}>
         {patient ? (
-          <div className="mb-4 text-gray-700">
-            <p><strong>Patient:</strong> {patient.name}</p>
-            <p><strong>SHA Number:</strong> {patient.shaNumber}</p>
-          </div>
+          <Card style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: ".74rem", fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 10 }}>
+              Patient
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <span style={{ fontSize: ".82rem", color: "#64748b" }}>Name</span>
+                <span style={{ fontSize: ".875rem", fontWeight: 600, color: "#0f172a" }}>{patient.name}</span>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <span style={{ fontSize: ".82rem", color: "#64748b" }}>SHA Number</span>
+                <span style={{ fontSize: ".875rem", fontWeight: 600, color: "#0f172a", fontFamily: "monospace" }}>{patient.shaNumber}</span>
+              </div>
+              {patient.phone && (
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span style={{ fontSize: ".82rem", color: "#64748b" }}>Phone</span>
+                  <span style={{ fontSize: ".875rem", color: "#0f172a" }}>{patient.phone}</span>
+                </div>
+              )}
+            </div>
+          </Card>
         ) : (
-          <div className="mb-4">
-            <label className="block text-sm font-medium">SHA Number</label>
-            <Input
-              name="shaNumber"
-              placeholder="Enter patient's SHA number"
+          <Card style={{ marginBottom: 16 }}>
+            <Inp
+              label="SHA Number"
               value={shaNumber}
-              onChange={(e) => setShaNumber(e.target.value)}
+              onChange={e => setShaNumber(e.target.value)}
+              placeholder="Enter patient SHA number"
               required
             />
-          </div>
+          </Card>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium">Select Medicine</label>
-            <select
-              name="medicineId"
-              value={form.medicineId}
-              onChange={handleChange}
-              className="w-full border rounded px-3 py-2"
-              required
-            >
-              <option value="">-- Select Medicine --</option>
-              {medicines.map((m) => (
-                <option key={m._id} value={m._id}>
-                  {m.name} ({m.stock} left)
-                </option>
-              ))}
-            </select>
-          </div>
+        <Card>
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+              <label style={{ fontSize: ".74rem", fontWeight: 600, color: "#334155", textTransform: "uppercase", letterSpacing: ".06em" }}>
+                Select Medicine *
+              </label>
+              <select
+                className="dispense-sel"
+                value={form.medicineId}
+                onChange={e => setForm({ ...form, medicineId: e.target.value })}
+                required
+              >
+                <option value="">Choose a medicine...</option>
+                {medicines.map(m => (
+                  <option key={m._id} value={m._id} disabled={m.stock === 0}>
+                    {m.name} ({m.stock} in stock{m.stock === 0 ? " - out of stock" : ""})
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium">Quantity</label>
-            <Input
+            {selected && (
+              <div style={{ background: "#f8fafc", borderRadius: 8, padding: "10px 14px", fontSize: ".82rem", color: "#475569" }}>
+                Available stock: <strong style={{ color: selected.stock <= 10 ? "#d97706" : "#059669" }}>{selected.stock} units</strong>
+                {selected.price ? ` — KSh ${selected.price.toLocaleString()} per unit` : ""}
+              </div>
+            )}
+
+            <Inp
+              label="Quantity *"
               type="number"
-              name="quantity"
               value={form.quantity}
-              onChange={handleChange}
+              onChange={e => setForm({ ...form, quantity: e.target.value })}
               placeholder="Enter quantity"
               required
             />
-          </div>
 
-          <div className="flex gap-3">
-            <Button type="submit" className="flex-1" disabled={loading}>
-              {loading ? "Dispensing..." : "Dispense"}
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              className="flex-1"
-              onClick={handleAddMedicine}
+            <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
+              <Btn variant="outline" full onClick={() => navigate(-1)}>Cancel</Btn>
+              <Btn type="submit" full disabled={loading}>{loading ? "Dispensing..." : "Dispense Medicine"}</Btn>
+            </div>
+          </form>
+
+          <div style={{ marginTop: 14, paddingTop: 14, borderTop: "1px solid #f1f5f9" }}>
+            <button
+              onClick={() => navigate("/chemist/add-medicine", { state: { fromDispense: true, patient } })}
+              style={{
+                background: "none", border: "none", color: "#059669", fontSize: ".82rem",
+                fontWeight: 500, cursor: "pointer", fontFamily: "'DM Sans',system-ui,sans-serif",
+              }}
             >
-              ➕ Add Medicine
-            </Button>
+              Medicine not listed? Add a new medicine
+            </button>
           </div>
-        </form>
+        </Card>
       </div>
     </ChemistLayout>
   );
