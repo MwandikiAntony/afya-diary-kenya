@@ -1,129 +1,83 @@
 import React, { useEffect, useState } from "react";
+import Layout from "../components/PatientLayout";
+import { PageHeader, Card, Btn, Inp, Table, TR, TD, EmptyState, Modal, FONTS, BASE_STYLES } from "../components/Shared/UI";
 import api from "../utils/api";
-import Layout from "../components/PublicLayout";
 import toast from "react-hot-toast";
+
+const EMPTY = "M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2 M9 11a4 4 0 100-8 4 4 0 000 8z";
 
 export default function Patients() {
   const [patients, setPatients] = useState([]);
-  const [showModal, setShowModal] = useState(false);
-  const [form, setForm] = useState({ name: "", phone: "", shaNumber: "" });
+  const [loading, setLoading]   = useState(true);
+  const [open, setOpen]         = useState(false);
+  const [saving, setSaving]     = useState(false);
+  const [form, setForm]         = useState({ name:"", phone:"", shaNumber:"" });
 
-  useEffect(() => {
-    loadPatients();
-  }, []);
-
-  const loadPatients = async () => {
+  const load = async () => {
     try {
       const { data } = await api.get("/patients");
       setPatients(data || []);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to load patients");
-    }
+    } catch { toast.error("Failed to load patients"); }
+    finally { setLoading(false); }
   };
 
-  const savePatient = async (e) => {
+  useEffect(() => { load(); }, []);
+
+  const save = async e => {
     e.preventDefault();
+    setSaving(true);
     try {
       await api.post("/patients", form);
       toast.success("Patient added");
-      setForm({ name: "", phone: "", shaNumber: "" });
-      setShowModal(false);
-      loadPatients();
+      setForm({ name:"", phone:"", shaNumber:"" });
+      setOpen(false);
+      load();
     } catch (err) {
-      console.error(err);
-      toast.error("Could not save patient");
-    }
+      toast.error(err.response?.data?.message || "Could not save patient");
+    } finally { setSaving(false); }
   };
 
   return (
     <Layout>
-      {/* Header and Add Button */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold text-[#00695C]">👥 Patients</h1>
-        <button
-          onClick={() => setShowModal(true)}
-          className="bg-[#1abc9c] text-white px-4 py-2 rounded-lg hover:bg-[#16a085] transition"
-        >
-          + New Patient
-        </button>
-      </div>
+      <link href={FONTS} rel="stylesheet" />
+      <style>{BASE_STYLES}</style>
 
-      {/* Patients Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full bg-white shadow-md rounded-lg overflow-hidden">
-          <thead className="bg-[#3498db] text-white">
-            <tr>
-              <th className="text-left px-4 py-2">Name</th>
-              <th className="text-left px-4 py-2">Phone</th>
-              <th className="text-left px-4 py-2">SHA</th>
-            </tr>
-          </thead>
-          <tbody>
-            {patients.length ? (
-              patients.map((p) => (
-                <tr key={p._id} className="border-b last:border-b-0">
-                  <td className="px-4 py-2">{p.name}</td>
-                  <td className="px-4 py-2">{p.phone}</td>
-                  <td className="px-4 py-2">{p.shaNumber || "—"}</td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="3" className="text-center text-gray-500 py-4">
-                  No patients found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      <PageHeader
+        eyebrow="Patients"
+        title="Patients"
+        subtitle="View and manage registered patient records."
+        action={<Btn onClick={() => setOpen(true)}>Add Patient</Btn>}
+      />
 
-      {/* Add Patient Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center">
-          <div className="bg-white w-full max-w-md p-6 rounded-xl shadow-lg">
-            <h3 className="text-2xl font-semibold text-[#3498db] mb-4">Add Patient</h3>
-            <form className="flex flex-col gap-3" onSubmit={savePatient}>
-              <input
-                placeholder="Full name"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                className="border rounded-lg p-3 w-full focus:ring-2 focus:ring-[#00695C]"
-                required
-              />
-              <input
-                placeholder="+254712345678"
-                value={form.phone}
-                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                className="border rounded-lg p-3 w-full focus:ring-2 focus:ring-[#00695C]"
-                required
-              />
-              <input
-                placeholder="SHA number (optional)"
-                value={form.shaNumber}
-                onChange={(e) => setForm({ ...form, shaNumber: e.target.value })}
-                className="border rounded-lg p-3 w-full focus:ring-2 focus:ring-[#00695C]"
-              />
-              <div className="flex gap-3 mt-2">
-                <button
-                  type="submit"
-                  className="bg-[#3498db] text-white px-4 py-2 rounded-lg hover:bg-[#2980b9] transition flex-1"
-                >
-                  Save
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="bg-[#e74c3c] text-white px-4 py-2 rounded-lg hover:bg-[#c0392b] transition flex-1"
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
+      <Card padding="0">
+        {loading ? (
+          <div style={{ padding:"40px", textAlign:"center", color:"#64748b", fontSize:".875rem" }}>Loading...</div>
+        ) : patients.length === 0 ? (
+          <EmptyState icon={EMPTY} title="No patients found" desc="Add your first patient to get started." />
+        ) : (
+          <Table headers={["Name","Phone","SHA Number"]}>
+            {patients.map(p => (
+              <TR key={p._id}>
+                <TD><span style={{ fontWeight:500 }}>{p.name}</span></TD>
+                <TD muted>{p.phone}</TD>
+                <TD mono muted>{p.shaNumber || "—"}</TD>
+              </TR>
+            ))}
+          </Table>
+        )}
+      </Card>
+
+      <Modal open={open} onClose={() => setOpen(false)} title="Add Patient">
+        <form onSubmit={save} style={{ display:"flex", flexDirection:"column", gap:14 }}>
+          <Inp label="Full Name" value={form.name} onChange={e => setForm({ ...form, name:e.target.value })} required placeholder="Patient full name" />
+          <Inp label="Phone Number" type="tel" value={form.phone} onChange={e => setForm({ ...form, phone:e.target.value })} required placeholder="+2547XXXXXXXX" />
+          <Inp label="SHA Number" value={form.shaNumber} onChange={e => setForm({ ...form, shaNumber:e.target.value })} placeholder="Social Health Authority Number" />
+          <div style={{ display:"flex", gap:10, marginTop:4 }}>
+            <Btn variant="outline" full onClick={() => setOpen(false)}>Cancel</Btn>
+            <Btn type="submit" full disabled={saving}>{saving ? "Saving..." : "Add Patient"}</Btn>
           </div>
-        </div>
-      )}
+        </form>
+      </Modal>
     </Layout>
   );
 }
