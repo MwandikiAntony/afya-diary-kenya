@@ -1,62 +1,43 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import ChemistLayout from "../../components/ChemistLayout";
-import { Button } from "../../components/ui/button";
-import { Input } from "../../components/ui/input";
+import { PageHeader, Card, Btn, Inp, FONTS, BASE_STYLES } from "../../components/Shared/UI";
 import api from "../../utils/api";
 import toast from "react-hot-toast";
 
-export default function AddMedicine() {
+export default function AddMedicinePage() {
   const navigate = useNavigate();
-  const location = useLocation(); // ✅ check if we came from Dispense
-
-  const [form, setForm] = useState({
-    name: "",
-    stock: "",
-    price: "",
-  });
+  const location = useLocation();
+  const [form, setForm]     = useState({ name: "", stock: "", price: "" });
   const [loading, setLoading] = useState(false);
 
-  // ✅ Handle input change
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const set = e => setForm({ ...form, [e.target.name]: e.target.value });
 
-  // ✅ Handle add medicine submission
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
-
-    if (!form.name || !form.stock || !form.price) {
-      toast.error("Medicine name, stock, and price are required.");
+    if (!form.name || !form.stock) {
+      toast.error("Medicine name and stock are required");
       return;
     }
-
+    setLoading(true);
     try {
-      setLoading(true);
       const { data } = await api.post("/chemist/add-medicine", {
         name: form.name,
         stock: Number(form.stock),
-        price: Number(form.price),
+        price: form.price ? Number(form.price) : 0,
       });
+      toast.success(data.message || "Medicine added successfully");
 
-      toast.success(data.message || "Medicine added successfully!");
-      setForm({ name: "", stock: "", price: "" });
-
-      // ✅ If came from Dispense page, go back and refetch
       if (location.state?.fromDispense) {
         navigate("/chemist/dispense", {
           state: { patient: location.state.patient, refetch: true },
           replace: true,
         });
       } else {
-        // ✅ Otherwise go to inventory
         navigate("/chemist-inventory");
       }
-    } catch (error) {
-      console.error("Error adding medicine:", error);
-      toast.error(
-        error.response?.data?.message || "Failed to add medicine. Try again."
-      );
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to add medicine");
     } finally {
       setLoading(false);
     }
@@ -64,50 +45,57 @@ export default function AddMedicine() {
 
   return (
     <ChemistLayout>
-      <div className="p-6 max-w-md mx-auto">
-        <h1 className="text-2xl font-semibold mb-6">➕ Add New Medicine</h1>
+      <link href={FONTS} rel="stylesheet" />
+      <style>{BASE_STYLES}</style>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium">Medicine Name</label>
-            <Input
-              type="text"
+      <PageHeader
+        eyebrow="Chemist Portal"
+        title="Add New Medicine"
+        subtitle="Add a medicine to your pharmacy inventory."
+      />
+
+      <div style={{ maxWidth: 460 }}>
+        <Card>
+          <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <Inp
+              label="Medicine Name"
               name="name"
               value={form.name}
-              onChange={handleChange}
-              placeholder="Enter medicine name"
+              onChange={set}
               required
+              placeholder="e.g. Amoxicillin 500mg"
             />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium">Stock Quantity</label>
-            <Input
-              type="number"
+            <Inp
+              label="Stock Quantity"
               name="stock"
-              value={form.stock}
-              onChange={handleChange}
-              placeholder="Enter quantity in stock"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium">Price (KSh)</label>
-            <Input
               type="number"
-              name="price"
-              value={form.price}
-              onChange={handleChange}
-              placeholder="Enter price per unit"
+              value={form.stock}
+              onChange={set}
               required
+              placeholder="Number of units in stock"
             />
-          </div>
+            <Inp
+              label="Price per Unit (KSh)"
+              name="price"
+              type="number"
+              value={form.price}
+              onChange={set}
+              placeholder="Optional"
+            />
 
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Adding..." : "Add Medicine"}
-          </Button>
-        </form>
+            <div style={{
+              background: "#f8fafc", borderRadius: 8, padding: "10px 14px",
+              fontSize: ".8rem", color: "#64748b", lineHeight: 1.6,
+            }}>
+              If this medicine already exists in your inventory, the stock will be added to the existing quantity.
+            </div>
+
+            <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
+              <Btn variant="outline" full onClick={() => navigate(-1)}>Cancel</Btn>
+              <Btn type="submit" full disabled={loading}>{loading ? "Adding..." : "Add Medicine"}</Btn>
+            </div>
+          </form>
+        </Card>
       </div>
     </ChemistLayout>
   );
