@@ -73,7 +73,7 @@ export function Btn({ children, onClick, type = "button", disabled = false, vari
     primary: { background:"#059669", color:"#fff", boxShadow:"0 2px 8px rgba(5,150,105,.25)" },
     secondary: { background:C.sl100, color:C.sl700 },
     outline: { background:"none", color:C.sl700, border:`1.5px solid ${C.sl200}` },
-    danger: { background:"#dc2626", color:"#fff" },
+    danger: { background:"#e72424", color:"#fff" },
   };
   return (
     <button type={type} disabled={disabled} onClick={onClick}
