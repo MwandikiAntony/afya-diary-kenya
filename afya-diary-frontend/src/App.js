@@ -38,7 +38,7 @@ import AddRecord          from "./pages/chemist/AddRecord";
 import AssignCHVPage      from "./pages/chemist/AssignCHVPage";
 
 // ── CHV pages ─────────────────────────────────────────────────────────────────
-import CHVDashboard from "./pages/CHVDashboard";
+import CHVDashboard from "./pages/chv/CHVDashboard";
 import CHVPatients  from "./pages/chv/CHVPatients";
 import CHVProfile   from "./pages/chv/CHVProfile";
 import CHVReports   from "./pages/chv/CHVReports";
