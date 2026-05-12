@@ -26,7 +26,7 @@ import Notifications from "./pages/Notifications";
 import Prescriptions from "./pages/Prescriptions";
 
 // ── Chemist pages ─────────────────────────────────────────────────────────────
-import ChemistDashboard   from "./pages/ChemistDashboard";
+import ChemistDashboard from "./pages/chemist/ChemistDashboard";
 import ChemistPatientPage from "./pages/chemist/ChemistPatientPage";
 import ChemistInventory   from "./pages/chemist/ChemistInventory";
 import ChemistProfile     from "./pages/chemist/ChemistProfile";
